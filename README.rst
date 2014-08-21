@@ -2,22 +2,96 @@
 pytest-pipeline
 ===============================
 
-.. image:: https://badge.fury.io/py/pytest_pipeline.png
-    :target: http://badge.fury.io/py/pytest_pipeline
+pytest-pipeline is a pytest plugin for functional testing of data analysis
+pipelines.
 
-.. image:: https://travis-ci.org/bow/pytest_pipeline.png?branch=master
-        :target: https://travis-ci.org/bow/pytest_pipeline
+It is meant for end-to-end testing where you test for conditions before the
+pipeline run and after the pipeline runs (output files, checksums, etc.)
 
-.. image:: https://pypip.in/d/pytest_pipeline/badge.png
-        :target: https://pypi.python.org/pypi/pytest_pipeline
+The Code
+========
+
+Here's how your test would look like with ``pytest_pipelines``:
+
+.. code-block:: python
+
+    import os
+    from pytest_pipeline import PipelineRun, PipelineTest, mark, utils
+
+    # one pipeline run is represented by one class that subclasses PipelineTest
+    class TestMyPipeline(PipelineTest):
+
+        # define the pipeline execution via PipelineRun objects
+        pipeline_run = PipelineRun(
+            # the actual command to start your pipeline
+            cmd="./run_pipeline",
+            # capture stdout to a file (only when --capture=no is set in py.test)
+            stdout="hehehe.out",
+        )
+
+        # before_run-marked functions will be run before the pipeline is executed
+        @mark.before_run
+        def prep_executable(self):
+            # here we will create a symlink in the test directory
+            # pointing to /usr/bin/pipeline
+            # by default, each Test class gets its own run directory
+            os.symlink("/usr/bin/pipeline", "run_pipeline")
+
+        # you can run tests with before_run too
+        @mark.before_run
+        def test_env_vars(self):
+            assert "MY_VAR" in os.environ
+
+        # after_run-marked tests will only be run after pipeline execution is finished
+        @mark.after_run
+        def test_exit_code(self):
+            assert self.pipeline_run.exit_code == 0
+
+        # here we're testing one output file checksum
+        @mark.after_run
+        def test_file(self):
+            assert utils.md5sum_from_file("file.txt") == "68ba00eb6995aeecb19773a27bf81b3d"
+
+        # you can also still define standalone tests, discoverable by py.test
+        def test_standalone(self):
+            assert 1 == 1
+
+With the code above, you get:
+
+- Test directory creation (one class gets one directory)
+- Tests before and after the pipeline run ordered properly
+
+Optionally:
+
+- stdout and stderr redirection (if ``--capture=no`` is set)
+- test execution halt as soon as any ``before_run`` or the actual pipeline run
+  fails (if ``--incremental`` is set)
+
+And since this is a py.test plugin, test discovery and execution is done via
+py.test.
 
 
-Pytest plugin for testing data analysis pipelines
+Why ....
+========
 
-* Free software: BSD license
-* Documentation: https://pytest_pipeline.readthedocs.org.
+... did you make this?
+----------------------
 
-Features
---------
+I feel like writing pipeline tests using the currently-available libraries
+is too cumbersome. A lot of the tasks are repetitive (set this directory,
+run the pipeline, check the output files, etc.) and I think they should be
+better-automated.
 
-* TODO
+... make it a py.test plugin?
+-----------------------------
+Because py.test is awesome. Plus I don't feel like reinventing the wheel.
+
+... do functional testing?
+--------------------------
+Because it's the responsible way to develop data analysis pipelines.
+
+
+Warning
+=======
+
+This is alpha-level software. Things will blow up.
