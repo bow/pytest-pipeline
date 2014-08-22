@@ -80,19 +80,23 @@ class MetaPipelineTest(type):
         cls._before_runs = []
         cls._before_runs_done = []
 
-        if not cls.__name__ == "PipelineTest":
-            for attr, val in dct.iteritems():
-                if not callable(val) or not hasattr(val, "_pipeline"):
-                    continue
-                dct[attr] = pytest.mark.incremental(val)
-                if not val._pipeline.get("phase") == mark.BEFORE_RUN:
-                    continue
-                cls._before_runs.append(val)
-                cls._before_runs_done.append(False)
+        for attr, val in dct.iteritems():
 
-            if not isinstance(getattr(cls, "pipeline_run", None), PipelineRun):
-                raise ValueError("Test class '{0}' does not have a proper 'pipeline_run' "
-                                 "attribute".format(cls))
+            if attr == "pipeline_run" and not \
+                    isinstance(getattr(cls, "pipeline_run", None), PipelineRun):
+                raise ValueError("Test class '{0}' does not have a proper "
+                                 "'pipeline_run' attribute".format(cls))
+
+            if not callable(val) or not hasattr(val, "_pipeline"):
+                continue
+
+            dct[attr] = pytest.mark.incremental(val)
+
+            if not val._pipeline.get("phase") == mark.BEFORE_RUN:
+                continue
+
+            cls._before_runs.append(val)
+            cls._before_runs_done.append(False)
 
         super(MetaPipelineTest, cls).__init__(name, bases, dct)
 
