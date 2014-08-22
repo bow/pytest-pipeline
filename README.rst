@@ -26,7 +26,7 @@ Here's how your test would look like with ``pytest_pipelines``:
             # the actual command to start your pipeline
             cmd="./run_pipeline",
             # capture stdout to a file (only when --capture=no is set in py.test)
-            stdout="hehehe.out",
+            stdout="run.stdout",
         )
 
         # before_run-marked functions will be run before the pipeline is executed
@@ -50,7 +50,7 @@ Here's how your test would look like with ``pytest_pipelines``:
         # here we're testing one output file checksum
         @mark.after_run
         def test_file(self):
-            assert utils.md5sum_from_file("file.txt") == "68ba00eb6995aeecb19773a27bf81b3d"
+            assert utils.file_md5sum("file.txt") == "68ba00eb6995aeecb19773a27bf81b3d"
 
         # you can also still define standalone tests, discoverable by py.test
         def test_standalone(self):
