@@ -16,7 +16,7 @@ from itertools import groupby
 
 import pytest
 
-from .mark import UNMARKED
+from .mark import UNMARKED, AFTER_RUN
 
 
 @pytest.fixture(scope="class")
@@ -66,7 +66,7 @@ def pytest_collection_modifyitems(session, config, items):
     items[:] = sorted(items, key=_test_sort_key)
 
 
-## credits to Holger Krekel himself for  these xfail marking functions
+## credits to Holger Krekel himself for these xfail marking functions
 ## http://stackoverflow.com/a/12579625/243058
 def pytest_runtest_makereport(item, call):
     if "incremental" in item.keywords:
@@ -76,6 +76,13 @@ def pytest_runtest_makereport(item, call):
 
 
 def pytest_runtest_setup(item):
+    # skip run and all after_run when config option is set
+    if item.config.option.skip_run \
+        and hasattr(item, 'cls') \
+        and item.function.func_dict.get('_pipeline', {}).get('phase') == AFTER_RUN:
+            pytest.skip(msg="'{0}' class does not have any 'run' "
+                        "objects".format(item.cls))
+    # incremental failure marking
     previousfailed = getattr(item.parent, "_previousfailed", None)
     if previousfailed is not None and item.config.option.incremental:
         pytest.xfail("previous test failed: '{0}'".format(previousfailed.name))
@@ -89,3 +96,6 @@ def pytest_addoption(parser):
     group.addoption("--incremental", dest="incremental", action="store_true",
                     default=False,
                     help="Whether to fail a class immediately if any of its tests fail")
+    group.addoption("--skip-run", dest="skip_run", action="store_true",
+                    default=False,
+                    help="Whether to skip the pipeline run and all tests after it")
