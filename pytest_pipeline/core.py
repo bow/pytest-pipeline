@@ -110,7 +110,7 @@ class PipelineTest(object):
     __metaclass__ = MetaPipelineTest
 
     def __repr__(self):
-        return "{0}(...)".format(self.test_id)
+        return "{0}(id='{1}', ...)".format(self.__class__.__name__, self.test_id)
 
     def _run_before_run_methods(self):
         if not all(self._before_runs_done):
