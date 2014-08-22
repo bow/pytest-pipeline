@@ -22,7 +22,7 @@ Here's how your test would look like with ``pytest_pipelines``:
     class TestMyPipeline(PipelineTest):
 
         # define the pipeline execution via PipelineRun objects
-        pipeline_run = PipelineRun(
+        run = PipelineRun(
             # the actual command to start your pipeline
             cmd="./run_pipeline",
             # capture stdout to a file (only when --capture=no is set in py.test)
@@ -45,7 +45,7 @@ Here's how your test would look like with ``pytest_pipelines``:
         # after_run-marked tests will only be run after pipeline execution is finished
         @mark.after_run
         def test_exit_code(self):
-            assert self.pipeline_run.exit_code == 0
+            assert self.run.exit_code == 0
 
         # here we're testing one output file checksum
         @mark.after_run

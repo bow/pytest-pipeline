@@ -82,9 +82,9 @@ class MetaPipelineTest(type):
 
         for attr, val in dct.iteritems():
 
-            if attr == "pipeline_run" and not isinstance(val, PipelineRun):
+            if attr == "run" and not isinstance(val, PipelineRun):
                 raise ValueError("Test class '{0}' does not have a proper "
-                                 "'pipeline_run' attribute".format(cls))
+                                 "'run' attribute".format(cls))
 
             if not callable(val) or not hasattr(val, "_pipeline"):
                 continue
