@@ -10,10 +10,16 @@
 
 """
 
+import gzip
 import hashlib
 
 
-def md5sum_from_file(fname, opener=open, mode="r", blocksize=65536):
+def file_md5sum(fname, unzip=False, mode="r", blocksize=65536):
+    if unzip:
+        opener = gzip.open
+    else:
+        opener = open
+
     hasher = hashlib.md5()
     with opener(fname, mode) as src:
         buf = src.read(blocksize)
