@@ -33,11 +33,13 @@ def after_run(func):
     func._pipeline = {"phase": AFTER_RUN}
     @wraps(func)
     def wrapped(self, *args, **kwargs):
-        if self.pipeline_run.exit_code is None:
-            # TODO: can we provide a more informative traceback if the this
-            #       subprocess run fails?
-            self._run_before_run_methods()
-            self.pipeline_run.launch_process_and_wait()
+        pipeline_run = getattr(self, "pipeline_run", None)
+        if pipeline_run is not None:
+            if pipeline_run.exit_code is None:
+                # TODO: can we provide a more informative traceback if the this
+                #       subprocess run fails?
+                self._run_before_run_methods()
+                self.pipeline_run.launch_process_and_wait()
         return func(self, *args, **kwargs)
     return wrapped
 
