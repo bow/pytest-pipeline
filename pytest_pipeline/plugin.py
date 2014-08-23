@@ -56,12 +56,16 @@ def pytest_collection_modifyitems(session, config, items):
         phase_data = getattr(item.function, "_pipeline", None)
         # use -1 score for unmarked functions
         marked_order = UNMARKED
+        within_mark_order = 0
         if phase_data is not None:
             marked_order = phase_data["phase"]
+            within_mark_order = phase_data["order"]
         try:
-            return class_order[item.cls.__name__], marked_order
+            return class_order[item.cls.__name__], marked_order, \
+                    within_mark_order
         except AttributeError:
-            return class_order[item.function.__name__], marked_order
+            return class_order[item.function.__name__], marked_order, \
+                    within_mark_order
 
     items[:] = sorted(items, key=_test_sort_key)
 
