@@ -44,13 +44,19 @@ Here's how your test would look like with ``pytest_pipelines``:
 
         # after_run-marked tests will only be run after pipeline execution is finished
         @mark.after_run
+        def test_a_file(self):
+            assert utils.file_md5sum("file.txt") == "68ba00eb6995aeecb19773a27bf81b3d"
+
+        # ordering for all tests annotated by after_run can be set manually
+        # here we want to test the exit code first after the run is finished
+        @mark.after_run(order=0)
         def test_exit_code(self):
             assert self.run.exit_code == 0
 
-        # here we're testing one output file checksum
-        @mark.after_run
-        def test_file(self):
-            assert utils.file_md5sum("file.txt") == "68ba00eb6995aeecb19773a27bf81b3d"
+        # this test will be run after the test above
+        @mark.after_run(order=1)
+        def test_another_file(self):
+            assert "result" in open("another_file.txt").read()
 
         # you can also still define standalone tests, discoverable by py.test
         def test_standalone(self):
