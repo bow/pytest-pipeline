@@ -99,8 +99,13 @@ class MetaPipelineTest(type):
             if not val._pipeline.get("phase") == mark.BEFORE_RUN:
                 continue
 
+            # TODO: can we also add non-test items to this list?
+            #       current problem now is it won't be run since
+            #       we use pytests's plugin hook to reorder
             cls._before_runs.append(val)
-            cls._before_runs_done.append(False)
+            if attr.startswith("test_"):
+                # HACK: consider the item 'done' if it's non-test
+                cls._before_runs_done.append(not attr.startswith("test_"))
 
         super(MetaPipelineTest, cls).__init__(name, bases, dct)
 

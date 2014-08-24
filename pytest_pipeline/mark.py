@@ -80,7 +80,8 @@ def after_run(__firstarg=None, order=sys.maxsize, **kwargz):
                 run = getattr(self, "run", None)
                 if run is not None:
                     if run.exit_code is None:
-                        self._run_before_run_methods()
+                        # TODO: implement properly with after_run counterpart
+                        # self._run_before_run_methods()
                         self.run.launch_process_and_wait()
                 return func(self, *args, **kwargs)
             return wrapped
