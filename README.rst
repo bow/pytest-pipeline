@@ -71,7 +71,7 @@ Optionally:
 
 - stdout and stderr redirection (if ``--capture=no`` is set)
 - test execution halt as soon as any ``before_run`` or the actual pipeline run
-  fails (if ``--incremental`` is set)
+  fails (if ``--xfail-pipeline`` is set)
 
 And since this is a py.test plugin, test discovery and execution is done via
 py.test.

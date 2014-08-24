@@ -73,7 +73,7 @@ def pytest_collection_modifyitems(session, config, items):
 ## credits to Holger Krekel himself for these xfail marking functions
 ## http://stackoverflow.com/a/12579625/243058
 def pytest_runtest_makereport(item, call):
-    if "incremental" in item.keywords:
+    if "xfail_pipeline" in item.keywords:
         if call.excinfo is not None:
             parent = item.parent
             parent._previousfailed = item
@@ -86,10 +86,10 @@ def pytest_runtest_setup(item):
         and item.function.func_dict.get('_pipeline', {}).get('phase') == AFTER_RUN:
             pytest.skip(msg="'{0}' class does not have any 'run' "
                         "objects".format(item.cls))
-    # incremental failure marking
+    # incremental failure marking when the first pipeline_run test fails
     previousfailed = getattr(item.parent, "_previousfailed", None)
-    if previousfailed is not None and item.config.option.incremental:
-        pytest.xfail("previous test failed: '{0}'".format(previousfailed.name))
+    if previousfailed is not None and item.config.option.xfail_pipeline:
+        pytest.xfail("Previous test failed: '{0}'".format(previousfailed.name))
 
 
 def pytest_addoption(parser):
@@ -97,7 +97,7 @@ def pytest_addoption(parser):
     group.addoption("--base-pipeline-dir", dest="base_pipeline_dir",
                     default=os.getcwd(), metavar="dir",
                     help="Base directory to put all pipeline test directories")
-    group.addoption("--incremental", dest="incremental", action="store_true",
+    group.addoption("--xfail-pipeline", dest="xfail_pipeline", action="store_true",
                     default=False,
                     help="Whether to fail a class immediately if any of its tests fail")
     group.addoption("--skip-run", dest="skip_run", action="store_true",

@@ -94,7 +94,7 @@ class MetaPipelineTest(type):
             if not callable(val) or not hasattr(val, "_pipeline"):
                 continue
 
-            dct[attr] = pytest.mark.incremental(val)
+            dct[attr] = pytest.mark.xfail_pipeline(val)
 
             if not val._pipeline.get("phase") == mark.BEFORE_RUN:
                 continue
