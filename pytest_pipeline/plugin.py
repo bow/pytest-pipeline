@@ -87,7 +87,17 @@ def pytest_runtest_makereport(item, call):
 
 def pytest_runtest_setup(item):
     # skip run and all after_run when config option is set
-    if item.config.option.skip_run \
+    # skip run also for all non-PipelineTest functions decorated with
+    # before_run and after_run
+    if hasattr(item, "cls"):
+        if not hasattr(item.cls, "run"):
+            pytest.skip(msg="Skipping run because class '{0}' does not have any "
+                        "run attributes".format(item.cls))
+        elif item.config.option.skip_run \
+            and item.function.func_dict.get('_pipeline', {}).get('phase') == AFTER_RUN:
+            pytest.skip(msg="Skipping run since option flag is set")
+
+        if item.config.option.skip_run \
         and hasattr(item, 'cls') \
         and item.function.func_dict.get('_pipeline', {}).get('phase') == AFTER_RUN:
             pytest.skip(msg="'{0}' class does not have any 'run' "
@@ -96,6 +106,7 @@ def pytest_runtest_setup(item):
     previousfailed = getattr(item.parent, "_previousfailed", None)
     if previousfailed is not None and item.config.option.xfail_pipeline:
         pytest.xfail("Previous test failed: '{0}'".format(previousfailed.name))
+
 
 
 def pytest_addoption(parser):

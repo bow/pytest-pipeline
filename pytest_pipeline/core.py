@@ -94,9 +94,6 @@ class MetaPipelineTest(type):
             if not callable(val) or not hasattr(val, "_pipeline"):
                 continue
 
-            if "run" not in dct:
-                dct[attr] = pytest.mark.skipif(True, reason="Pipeline marked noexec")(val)
-
             dct[attr] = pytest.mark.xfail_pipeline(val)
 
         return super(MetaPipelineTest, meta).__new__(meta, name, bases, dct)
