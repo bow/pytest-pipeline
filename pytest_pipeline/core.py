@@ -14,6 +14,7 @@ import os
 import shlex
 import subprocess
 import sys
+import threading
 import time
 from uuid import uuid4
 
@@ -24,11 +25,13 @@ from . import mark
 
 class PipelineRun(object):
 
-    def __init__(self, cmd, stdout=sys.stdout, stderr=sys.stderr, poll_time=1):
+    def __init__(self, cmd, stdout=sys.stdout, stderr=sys.stderr,
+                 poll_time=0.01, timeout=None):
         self.cmd = cmd
         self.stdout = stdout
         self.stderr = stderr
         self.poll_time = poll_time
+        self.timeout = float(timeout) if timeout is not None else timeout
         self._process = None
         self._toks = shlex.split(cmd)
 
@@ -46,7 +49,13 @@ class PipelineRun(object):
         if self._process is not None:
             return self._process.returncode
 
-    def launch_process(self, restart=False):
+    def launch_process_and_wait(self):
+
+        def target():
+            self._process = subprocess.Popen(self._toks, stdout=self.stdout,
+                                             stderr=self.stderr)
+            while self._process.poll() is None:
+                time.sleep(self.poll_time)
 
         if isinstance(self.stdout, basestring):
             self.stdout = open(self.stdout, "w")
@@ -58,17 +67,13 @@ class PipelineRun(object):
         elif self.stderr is None:
             self.stderr = open(os.devnull, "w")
 
-        if restart and self._process is not None:
-            self._process.kill()
-            self._process = None
+        thread = threading.Thread(target=target)
+        thread.start()
 
-        self._process = subprocess.Popen(self._toks, stdout=self.stdout,
-                                         stderr=self.stderr)
-
-    def launch_process_and_wait(self, restart=False):
-        self.launch_process(restart)
-        while self._process.poll() is None:
-            time.sleep(self.poll_time)
+        thread.join(self.timeout)
+        if thread.is_alive():
+            self._process.terminate()
+            pytest.fail("Process is taking longer than {0} seconds".format(self.timeout))
 
 
 class MetaPipelineTest(type):

@@ -183,3 +183,49 @@ def test_pipeline_no_order_non_test(mockpipe, testdir):
     result.stdout.fnmatch_lines([
         "*ValueError: Can not decorate non-test functions with 'order'"
     ])
+
+
+MOCK_PIPELINE_TIMEOUT = """
+#!/usr/bin/env python
+
+if __name__ == "__main__":
+
+    import time
+    time.sleep(10)
+"""
+
+
+TEST_TIMEOUT = """
+import os, shutil
+from pytest_pipeline import PipelineRun, PipelineTest, mark
+
+class TestMyPipeline(PipelineTest):
+
+    run = PipelineRun(cmd="{python} pipeline", timeout=0.1)
+
+    @mark.before_run
+    def test_and_prep_executable(self):
+        shutil.copy2("../pipeline", "pipeline")
+        assert os.path.exists("pipeline")
+
+    @mark.after_run
+    def test_exit_code(self):
+        assert self.run.exit_code != 0
+""".format(python=sys.executable)
+
+
+@pytest.fixture(scope="function")
+def mockpipe_timeout(request, testdir):
+    """Mock pipeline script with timeout"""
+    mp = testdir.makefile("", pipeline=MOCK_PIPELINE_TIMEOUT)
+    return mp
+
+
+def test_pipeline_timeout(mockpipe_timeout, testdir):
+    """Test for execution with timeout"""
+    test = testdir.makepyfile(TEST_TIMEOUT)
+    result = testdir.runpytest("-v", test)
+    result.stdout.fnmatch_lines([
+        "* collected 2 items",
+        "*Failed: Process is taking longer than 0.1 seconds",
+    ])
