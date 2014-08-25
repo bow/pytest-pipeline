@@ -38,4 +38,17 @@ setup(
             "pytest-pipeline = pytest_pipeline.plugin",
         ],
     },
+    classifiers=[
+        "Development Status :: 3 - Alpha",
+        "Environment :: Console",
+        "Intended Audience :: Developers",
+        "License :: OSI Approved :: BSD License",
+        "Operating System :: POSIX",
+        "Programming Language :: Python :: 2.7",
+        "Programming Language :: Python :: 3.3",
+        "Programming Language :: Python :: 3.4",
+        "Topic :: Utilities",
+        "Topic :: Software Development :: Testing",
+        "Topic :: Software Development :: Libraries",
+    ],
 )
