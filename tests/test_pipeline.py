@@ -61,7 +61,7 @@ class TestMyPipeline(PipelineTest):
 def test_pipeline_basic(mockpipe, testdir):
     """Test for basic execution order: before_run then after_run"""
     test = testdir.makepyfile(TEST_OK)
-    result = testdir.runpytest("-v", test)
+    result = testdir.runpytest("-v", "--base-pipeline-dir=" + test.dirname, test)
     result.stdout.fnmatch_lines([
         "* collected 2 items"
     ])
@@ -101,7 +101,7 @@ class TestMyPipeline(PipelineTest):
 def test_pipeline_no_run(testdir):
     """Test for PipelineTest classes without run attribute"""
     test = testdir.makepyfile(TEST_NORUN)
-    result = testdir.runpytest("-v", test)
+    result = testdir.runpytest("-v", "--base-pipeline-dir=" + test.dirname, test)
     result.stdout.fnmatch_lines([
         "* collected 3 items"
     ])
@@ -130,7 +130,7 @@ def test_function_standalone():
 def test_pipeline_with_function(mockpipe, testdir):
     """Test for basic execution order with non-class-based test."""
     test = testdir.makepyfile(TEST_OK_WITH_NONCLASS)
-    result = testdir.runpytest("-v", test)
+    result = testdir.runpytest("-v", "--base-pipeline-dir=" + test.dirname, test)
     result.stdout.fnmatch_lines([
         "* collected 3 items"
     ])
@@ -177,7 +177,7 @@ class TestMyPipeline(PipelineTest):
 def test_pipeline_granular(mockpipe, testdir):
     """Test for execution with 'order' specified in before_run and after_run"""
     test = testdir.makepyfile(TEST_OK_GRANULAR)
-    result = testdir.runpytest("-v", test)
+    result = testdir.runpytest("-v", "--base-pipeline-dir=" + test.dirname, test)
     result.stdout.fnmatch_lines([
         "* collected 4 items"
     ])
@@ -239,7 +239,7 @@ def mockpipe_timeout(request, testdir):
 def test_pipeline_timeout(mockpipe_timeout, testdir):
     """Test for execution with timeout"""
     test = testdir.makepyfile(TEST_TIMEOUT)
-    result = testdir.runpytest("-v", test)
+    result = testdir.runpytest("-v", "--base-pipeline-dir=" + test.dirname, test)
     result.stdout.fnmatch_lines([
         "* collected 2 items",
         "*Failed: Process is taking longer than 0.1 seconds",
