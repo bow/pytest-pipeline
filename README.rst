@@ -2,10 +2,11 @@
 pytest-pipeline
 ===============================
 
+.. image:: https://badge.fury.io/py/pytest-pipeline.svg
+        :target: http://badge.fury.io/py/pytest-pipeline
 
 .. image:: https://travis-ci.org/bow/pytest-pipeline.png?branch=master
         :target: https://travis-ci.org/bow/pytest-pipeline
-
 
 pytest-pipeline is a Python3-compatible pytest plugin for functional testing
 of data analysis pipelines. They are usually long-running scripts or executables
