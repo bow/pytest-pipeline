@@ -19,7 +19,7 @@ with open("requirements-dev.txt") as src:
 
 
 setup(
-    name="pytest_pipeline",
+    name="pytest-pipeline",
     version=__version__,
     description="Pytest plugin for functional testing of data analysis pipelines",
     long_description=readme + "\n\n" + history,
@@ -31,7 +31,7 @@ setup(
     install_requires=requirements,
     license="BSD",
     zip_safe=False,
-    keywords="pytest_pipeline",
+    keywords="pytest pipeline plugin testing",
     tests_require=test_requirements,
     entry_points={
         "pytest11": [
