@@ -1,3 +1,5 @@
+import glob
+import os
 import sys
 
 import pytest
@@ -19,8 +21,8 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         sys.exit(1)
 
-    sys.stdout.write("stdout stream\\n")
-    sys.stderr.write("stderr stream\\n")
+    sys.stdout.write("stdout stream")
+    sys.stderr.write("stderr stream")
 
     with open("log.txt", "w") as log:
         log.write("not really\\n")
@@ -76,6 +78,46 @@ def test_pipeline_basic(mockpipe, testdir):
             linenos[1] = lineno
     assert all(expected), "Not all tests in mock pipeline test found"
     assert linenos[0] < linenos[1], "Mock pipeline test sorted in wrong order"
+
+
+TEST_REDIRECTION = """
+import os, shutil
+from pytest_pipeline import PipelineRun, PipelineTest, mark
+
+class TestMyPipeline(PipelineTest):
+
+    run = PipelineRun(
+        cmd="{python} pipeline",
+        stdout="stream.out",
+        stderr="stream.err",
+    )
+
+    @mark.before_run
+    def test_and_prep_executable(self):
+        shutil.copy2("../pipeline", "pipeline")
+        assert os.path.exists("pipeline")
+
+    @mark.after_run
+    def test_exit_code(self):
+        assert self.run.exit_code == 0
+""".format(python=sys.executable)
+
+
+def test_pipeline_redirection(mockpipe, testdir):
+    test = testdir.makepyfile(TEST_REDIRECTION)
+    result = testdir.runpytest("-v", "--base-pipeline-dir=" + test.dirname, test)
+    result.stdout.fnmatch_lines([
+        "*TestMyPipeline::test_exit_code PASSED",
+    ])
+    testdir_matches = glob.glob(os.path.join(test.dirname, "TestMyPipeline*"))
+    assert len(testdir_matches) == 1
+    testdir_pipeline = testdir_matches[0]
+    stdout = os.path.join(testdir_pipeline, "stream.out")
+    assert os.path.exists(stdout)
+    assert open(stdout).read() == "stdout stream"
+    stderr = os.path.join(testdir_pipeline, "stream.err")
+    assert os.path.exists(stderr)
+    assert open(stderr).read() == "stderr stream"
 
 
 TEST_NORUN = """
