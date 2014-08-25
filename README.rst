@@ -2,6 +2,11 @@
 pytest-pipeline
 ===============================
 
+
+.. image:: https://travis-ci.org/bow/pytest-pipeline.png?branch=master
+        :target: https://travis-ci.org/bow/pytest-pipeline
+
+
 pytest-pipeline is a pytest plugin for functional testing of data analysis
 pipelines.
 
@@ -31,11 +36,12 @@ Here's how your test would look like with ``pytest_pipelines``:
 
         # before_run-marked functions will be run before the pipeline is executed
         @mark.before_run
-        def prep_executable(self):
+        def test_and_prep_executable(self):
             # here we will create a symlink in the test directory
             # pointing to /usr/bin/pipeline
             # by default, each Test class gets its own run directory
             os.symlink("/usr/bin/pipeline", "run_pipeline")
+            assert os.path.exists("run_pipeline")
 
         # you can run tests with before_run too
         @mark.before_run
