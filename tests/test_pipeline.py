@@ -74,8 +74,51 @@ def test_pipeline_basic(mockpipe, testdir):
         elif line.endswith("TestMyPipeline::test_exit_code PASSED"):
             expected[1] = True
             linenos[1] = lineno
+    assert all(expected), "Not all tests in mock pipeline test found"
+    assert linenos[0] < linenos[1], "Mock pipeline test sorted in wrong order"
+
+
+TEST_NORUN = """
+import os, shutil
+from pytest_pipeline import PipelineRun, PipelineTest, mark
+
+class TestMyPipeline(PipelineTest):
+
+    @mark.before_run
+    def test_and_prep_executable(self):
+        shutil.copy2("../pipeline", "pipeline")
+        assert os.path.exists("pipeline")
+
+    @mark.after_run
+    def test_exit_code(self):
+        assert self.run.exit_code == 0
+
+    def test_standalone(self):
+        assert 1 == 1
+""".format(python=sys.executable)
+
+
+def test_pipeline_no_run(testdir):
+    """Test for PipelineTest classes without run attribute"""
+    test = testdir.makepyfile(TEST_NORUN)
+    result = testdir.runpytest("-v", test)
+    result.stdout.fnmatch_lines([
+        "* collected 3 items"
+    ])
+    expected = [False, False]
+    linenos = [0, 0]
+    for lineno, line in enumerate(result.outlines, start=1):
+        if line.endswith("TestMyPipeline::test_and_prep_executable SKIPPED"):
+            expected[0] = True
+            linenos[0] = lineno
+        elif line.endswith("TestMyPipeline::test_exit_code SKIPPED"):
+            expected[1] = True
+            linenos[1] = lineno
     assert all(expected), "Not all tests in mock pipeline test executed"
-    assert linenos[0] < linenos[1], "Mock pipeline test executed in wrong order"
+    assert linenos[0] < linenos[1], "Mock pipeline test sorted in wrong order"
+    result.stdout.fnmatch_lines([
+        "*TestMyPipeline::test_standalone PASSED",
+    ])
 
 
 TEST_OK_WITH_NONCLASS = TEST_OK + """
@@ -101,7 +144,7 @@ def test_pipeline_with_function(mockpipe, testdir):
             expected[1] = True
             linenos[1] = lineno
     assert all(expected), "Not all tests in mock pipeline test executed"
-    assert linenos[0] < linenos[1], "Mock pipeline test executed in wrong order"
+    assert linenos[0] < linenos[1], "Mock pipeline test sorted in wrong order"
 
 
 TEST_OK_GRANULAR = """
@@ -154,7 +197,7 @@ def test_pipeline_granular(mockpipe, testdir):
             expected[3] = True
             linenos[3] = lineno
     assert all(expected), "Not all tests in mock pipeline test executed"
-    assert linenos == sorted(linenos), "Mock pipeline test executed in wrong order"
+    assert linenos == sorted(linenos), "Mock pipeline test sorted in wrong order"
 
 
 MOCK_PIPELINE_TIMEOUT = """
