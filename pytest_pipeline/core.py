@@ -19,6 +19,8 @@ import time
 from uuid import uuid4
 
 import pytest
+from future.builtins import str
+from future.utils import iteritems, with_metaclass
 
 
 class PipelineRun(object):
@@ -55,12 +57,12 @@ class PipelineRun(object):
             while self._process.poll() is None:
                 time.sleep(self.poll_time)
 
-        if isinstance(self.stdout, basestring):
+        if isinstance(self.stdout, str):
             self.stdout = open(self.stdout, "w")
         elif self.stdout is None:
             self.stdout = open(os.devnull, "w")
 
-        if isinstance(self.stderr, basestring):
+        if isinstance(self.stderr, str):
             self.stderr = open(self.stderr, "w")
         elif self.stderr is None:
             self.stderr = open(os.devnull, "w")
@@ -82,7 +84,7 @@ class MetaPipelineTest(type):
         if not [base for base in bases if isinstance(base, MetaPipelineTest)]:
             return super(MetaPipelineTest, meta).__new__(meta, name, bases, dct)
 
-        for attr, val in dct.iteritems():
+        for attr, val in iteritems(dct):
 
             if attr == "run" and not isinstance(val, PipelineRun):
                 raise ValueError("Test class '{0}' does not have a proper "
@@ -107,9 +109,7 @@ class MetaPipelineTest(type):
             super(MetaPipelineTest, cls).__init__(name, bases, dct)
 
 
-class PipelineTest(object):
-
-    __metaclass__ = MetaPipelineTest
+class PipelineTest(with_metaclass(MetaPipelineTest)):
 
     def __repr__(self):
         return "{0}(id='{1}', ...)".format(self.__class__.__name__, self.test_id)
