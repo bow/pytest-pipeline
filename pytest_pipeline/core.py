@@ -22,6 +22,8 @@ from past.builtins import basestring
 from future.utils import iteritems, with_metaclass
 
 
+#TODO: allow multiple runs to be executed in test pipelines
+
 class PipelineRun(object):
 
     def __init__(self, cmd, stdout=None, stderr=None,
@@ -104,7 +106,7 @@ class MetaPipelineTest(type):
         if "run" in dct:
             cls.test_id = str(uuid4())
             cls.test_dirname = cls.__name__ + "_" + cls.test_id
-            cls = pytest.mark.usefixtures("autogendir")(cls)
+            cls = pytest.mark.usefixtures("_autogendir")(cls)
             super(MetaPipelineTest, cls).__init__(name, bases, dct)
 
 

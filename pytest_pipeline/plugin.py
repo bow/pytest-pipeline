@@ -21,7 +21,7 @@ from .mark import UNMARKED, AFTER_RUN
 
 
 @pytest.fixture(scope="class")
-def autogendir(request):
+def _autogendir(request):
     run_dir = request.cls.test_dirname
     init_dir = os.getcwd()
     # create base pipeline dir if it does not exist

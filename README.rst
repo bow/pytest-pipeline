@@ -120,6 +120,14 @@ And since this is a py.test plugin, test discovery and execution is done via
 py.test.
 
 
+Getting + giving help
+=====================
+
+Please use the `issue tracker <https://github.com/bow/pytest-pipeline/issues>`_
+to report bugs or feature requests. You can always fork and submit a pull
+request as well.
+
+
 License
 =======
 
