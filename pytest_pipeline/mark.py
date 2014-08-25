@@ -20,17 +20,6 @@ IN_RUN = 1
 AFTER_RUN = 2
 
 
-def _check_mark(func):
-    # FIXME: since we rely on pytest's ordering of tests,
-    #        we default to only allow order arguments for
-    #        non-test functions. this should be fixed later
-    # FIXME: this does not work with custom test prefixes
-    if not func.func_name.startswith("test_"):
-        raise ValueError("Can not decorate non-test functions with 'order'")
-
-
-# TODO: implement ordering in before_run and after_run
-
 # trying to emulate Python's builtin argument handling here
 # so we can have decorators with optional arguments
 def before_run(__firstarg=None, order=sys.maxsize, **kwargz):
@@ -50,7 +39,6 @@ def before_run(__firstarg=None, order=sys.maxsize, **kwargz):
     # other cases: when decorator has args
     elif __firstarg is None:
         def onion(func):       # layers, right?
-            _check_mark(func)
             func._pipeline = _pdict
             @wraps(func)
             def wrapped(self, *args, **kwargs):
@@ -78,13 +66,11 @@ def after_run(__firstarg=None, order=sys.maxsize, **kwargz):
                 if run.exit_code is None:
                     # TODO: can we provide a more informative traceback if the this
                     #       subprocess run fails?
-                    self._run_before_run_methods()
                     self.run.launch_process_and_wait()
             return func(self, *args, **kwargs)
         return wrapped
     elif __firstarg is None:
         def onion(func):
-            _check_mark(func)
             func._pipeline = _pdict
             @wraps(func)
             def wrapped(self, *args, **kwargs):

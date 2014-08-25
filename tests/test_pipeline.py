@@ -157,34 +157,6 @@ def test_pipeline_granular(mockpipe, testdir):
     assert linenos == sorted(linenos), "Mock pipeline test executed in wrong order"
 
 
-TEST_NO_ORDER_NON_TEST = """
-import os, shutil
-from pytest_pipeline import PipelineRun, PipelineTest, mark
-
-class TestMyPipeline(PipelineTest):
-
-    run = PipelineRun(cmd="{python} pipeline")
-
-    @mark.before_run(order=2)
-    def prep_executable(self):
-        shutil.copy2("../pipeline", "pipeline")
-
-    @mark.after_run
-    def test_exit_code(self):
-        assert self.run.exit_code == 0
-"""
-
-def test_pipeline_no_order_non_test(mockpipe, testdir):
-    test = testdir.makepyfile(TEST_NO_ORDER_NON_TEST)
-    result = testdir.runpytest("-v", test)
-    result.stdout.fnmatch_lines([
-        "* collected 0 items / 1 errors"
-    ])
-    result.stdout.fnmatch_lines([
-        "*ValueError: Can not decorate non-test functions with 'order'"
-    ])
-
-
 MOCK_PIPELINE_TIMEOUT = """
 #!/usr/bin/env python
 

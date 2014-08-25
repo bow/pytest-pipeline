@@ -100,11 +100,7 @@ Because it's the responsible way to develop data analysis pipelines.
 LIMITATIONS
 ===========
 
-- ``after_run`` and ``before_run`` with custom ``order`` only works on functions
-  whose name begins with ``test_``. Using a custom prefix set via the pytest
-  (e.g. ``check_``) will result in an error. Marked functions not beginning
-  with test has the order value set to zero, so the workaround is to decorate the
-  test functions with other integer values.
+- ``after_run`` and ``before_run`` can only be applied to test functions
 
 
 WARNING
