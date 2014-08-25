@@ -13,7 +13,6 @@
 import os
 import shlex
 import subprocess
-import sys
 import threading
 import time
 from uuid import uuid4
@@ -25,7 +24,7 @@ from future.utils import iteritems, with_metaclass
 
 class PipelineRun(object):
 
-    def __init__(self, cmd, stdout=sys.stdout, stderr=sys.stderr,
+    def __init__(self, cmd, stdout=None, stderr=None,
                  poll_time=0.01, timeout=None):
         self.cmd = cmd
         self.stdout = stdout
