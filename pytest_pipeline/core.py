@@ -19,7 +19,7 @@ import time
 from uuid import uuid4
 
 import pytest
-from future.builtins import str
+from past.builtins import basestring
 from future.utils import iteritems, with_metaclass
 
 
@@ -57,12 +57,12 @@ class PipelineRun(object):
             while self._process.poll() is None:
                 time.sleep(self.poll_time)
 
-        if isinstance(self.stdout, str):
+        if isinstance(self.stdout, basestring):
             self.stdout = open(self.stdout, "w")
         elif self.stdout is None:
             self.stdout = open(os.devnull, "w")
 
-        if isinstance(self.stderr, str):
+        if isinstance(self.stderr, basestring):
             self.stderr = open(self.stderr, "w")
         elif self.stderr is None:
             self.stderr = open(os.devnull, "w")
