@@ -97,7 +97,17 @@ Because py.test is awesome. Plus I don't feel like reinventing the wheel.
 Because it's the responsible way to develop data analysis pipelines.
 
 
-Warning
+LIMITATIONS
+===========
+
+- ``after_run`` and ``before_run`` with custom ``order`` only works on functions
+  whose name begins with ``test_``. Using a custom prefix set via the pytest
+  (e.g. ``check_``) will result in an error. Marked functions not beginning
+  with test has the order value set to zero, so the workaround is to decorate the
+  test functions with other integer values.
+
+
+WARNING
 =======
 
-This is alpha-level software. Things will blow up.
+This is alpha software. Things will blow up!
