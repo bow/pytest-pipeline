@@ -27,12 +27,9 @@ def _autogendir(request):
     # create base pipeline dir if it does not exist
     root_test_dir = request.config.option.base_pipeline_dir
     if root_test_dir is None:
-        tmpdir = os.path.join(tempfile.tempdir, "pipeline_tests")
-        if not os.path.exists(tmpdir):
-            os.makedirs(tmpdir)
-        root_test_dir = tempfile.mkdtemp(dir=tmpdir)
-    if not os.path.exists(root_test_dir):
-        os.makedirs(root_test_dir)
+        root_test_dir = os.path.join(tempfile.tempdir, "pipeline_tests")
+        if not os.path.exists(root_test_dir):
+            os.makedirs(root_test_dir)
     test_dir = os.path.join(root_test_dir, run_dir)
     # TODO: warn if we are removing existing directory?
     if os.path.exists(test_dir):
