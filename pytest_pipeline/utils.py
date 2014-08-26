@@ -12,6 +12,7 @@
 
 import gzip
 import hashlib
+import os
 
 
 def file_md5sum(fname, unzip=False, mode="r", blocksize=65536):
@@ -27,3 +28,18 @@ def file_md5sum(fname, unzip=False, mode="r", blocksize=65536):
             hasher.update(buf)
             buf = src.read(blocksize)
     return hasher.hexdigest()
+
+
+def isexecfile(fname):
+    return os.path.isfile(fname) and os.access(fname, os.X_OK)
+
+
+def which(program):
+    # can not do anything meaningful without PATH
+    if "PATH" not in os.environ:
+        return
+    for possible in os.environ["PATH"].split(":"):
+        qualname = os.path.join(possible, program)
+        if isexecfile(qualname):
+            return qualname
+    return
