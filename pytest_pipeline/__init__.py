@@ -18,7 +18,7 @@ __version__ += "-dev" if not RELEASE else ""
 
 __author__ = "Wibowo Arindrarto"
 __contact__ = "bow@bow.web.id"
-__homepage__ = "https://github.com/bow/pytest_pipeline"
+__homepage__ = "https://github.com/bow/pytest-pipeline"
 
 # so we can keep the info above for setup.py
 try:
