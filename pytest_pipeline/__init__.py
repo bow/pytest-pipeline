@@ -20,5 +20,8 @@ __author__ = "Wibowo Arindrarto"
 __contact__ = "bow@bow.web.id"
 __homepage__ = "https://github.com/bow/pytest_pipeline"
 
-
-from .core import PipelineRun, PipelineTest
+# so we can keep the info above for setup.py
+try:
+    from .core import PipelineRun, PipelineTest
+except ImportError:
+    pass
