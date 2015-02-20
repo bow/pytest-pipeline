@@ -12,14 +12,15 @@
 
 import os
 import shlex
+import shutil
 import subprocess
 import threading
+import tempfile
 import time
 from uuid import uuid4
 
 import pytest
 from past.builtins import basestring
-from future.utils import iteritems, with_metaclass
 
 
 #TODO: allow multiple runs to be executed in test pipelines
@@ -35,22 +36,13 @@ class PipelineRun(object):
         self.timeout = float(timeout) if timeout is not None else timeout
         self._process = None
         self._toks = shlex.split(cmd)
+        # set by the make_fixture functions at runtime
+        self.run_dir = None
 
     def __repr__(self):
         return "{0}(...)".format(self.__class__.__name__)
 
-    @property
-    def run_id(self):
-        if not hasattr(self, "_run_id"):
-            self._run_id = str(uuid4())
-        return self._run_id
-
-    @property
-    def exit_code(self):
-        if self._process is not None:
-            return self._process.returncode
-
-    def launch_process_and_wait(self):
+    def __launch_main_process(self):
 
         def target():
             self._process = subprocess.Popen(self._toks, stdout=self.stdout,
@@ -74,40 +66,71 @@ class PipelineRun(object):
         thread.join(self.timeout)
         if thread.is_alive():
             self._process.terminate()
-            pytest.fail("Process is taking longer than {0} seconds".format(self.timeout))
+            pytest.fail("Process is taking longer than {0} "
+                        "seconds".format(self.timeout))
 
+    @classmethod
+    def _get_before_run_funcs(cls):
+        funcs = []
+        for attr in cls.__dict__.values():
+            if hasattr(attr, "_before_run_order"):
+                funcs.append(attr)
+        return sorted(funcs, key=lambda f: getattr(f, "_before_run_order"))
 
-class MetaPipelineTest(type):
+    @classmethod
+    def _make_fixture(cls, scope, *args, **kwargs):
 
-    def __new__(meta, name, bases, dct):
-        # ensure that only subclasses of PipelineTest has the custom __new__
-        # and not PipelineTest itself
-        if not [base for base in bases if isinstance(base, MetaPipelineTest)]:
-            return super(MetaPipelineTest, meta).__new__(meta, name, bases, dct)
+        @pytest.fixture(scope=scope)
+        def fixture(request):
+            run = cls(*args, **kwargs)
 
-        for attr, val in iteritems(dct):
+            init_dir = os.getcwd()
+            # create base pipeline dir if it does not exist
+            root_test_dir = request.config.option.base_pipeline_dir
+            if root_test_dir is None:
+                root_test_dir = os.path.join(tempfile.tempdir, "pipeline_tests")
+                if not os.path.exists(root_test_dir):
+                    os.makedirs(root_test_dir)
+            test_dir = os.path.join(root_test_dir,
+                                    run.__class__.__name__ + "_" + run.run_id)
+            run.run_dir = test_dir
+            # warn if we are removing existing directory?
+            if os.path.exists(test_dir):
+                shutil.rmtree
+            os.makedirs(test_dir)
+            def done(): os.chdir(init_dir)
+            request.addfinalizer(done)
 
-            if attr == "run" and not isinstance(val, PipelineRun):
-                raise ValueError("Test class '{0}' does not have a proper "
-                                 "'run' attribute".format(meta))
+            os.chdir(test_dir)
+            for func in cls._get_before_run_funcs():
+                func(run)
+            run.__launch_main_process()
 
-            if not callable(val) or not hasattr(val, "_pipeline"):
-                continue
+            if scope != "class":
+                return run
 
-            dct[attr] = pytest.mark.xfail_pipeline(val)
+            if hasattr(request.cls, "run_fixture"):
+                raise ValueError("Can not overwrite existing 'run_fixture' "
+                                "attribute from class")
+            request.cls.run_fixture = run
 
-        return super(MetaPipelineTest, meta).__new__(meta, name, bases, dct)
+        return fixture
 
-    def __init__(cls, name, bases, dct):
-        # only create test fixtures if there is a run attribute
-        if "run" in dct:
-            cls.test_id = str(uuid4())
-            cls.test_dirname = cls.__name__ + "_" + cls.test_id
-            cls = pytest.mark.usefixtures("_autogendir")(cls)
-            super(MetaPipelineTest, cls).__init__(name, bases, dct)
+    @classmethod
+    def make_class_fixture(cls, *args, **kwargs):
+        return cls._make_fixture("class", *args, **kwargs)
 
+    @classmethod
+    def make_module_fixture(cls, *args, **kwargs):
+        return cls._make_fixture("module", *args, **kwargs)
 
-class PipelineTest(with_metaclass(MetaPipelineTest)):
+    @property
+    def run_id(self):
+        if not hasattr(self, "_run_id"):
+            self._run_id = str(uuid4())
+        return self._run_id
 
-    def __repr__(self):
-        return "{0}(id='{1}', ...)".format(self.__class__.__name__, self.test_id)
+    @property
+    def exit_code(self):
+        if self._process is not None:
+            return self._process.returncode
