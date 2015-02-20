@@ -43,64 +43,64 @@ def mockpipe(request, testdir):
 
 
 TEST_OK = """
-import os, shutil
-from pytest_pipeline import PipelineRun, PipelineTest, mark
+import os, shutil, unittest
+import pytest
+from pytest_pipeline import PipelineRun, mark
 
-class TestMyPipeline(PipelineTest):
-
-    run = PipelineRun(cmd="{python} pipeline")
+class MyRun(PipelineRun):
 
     @mark.before_run
-    def test_and_prep_executable(self):
+    def prep_executable(self):
         shutil.copy2("../pipeline", "pipeline")
         assert os.path.exists("pipeline")
 
-    @mark.after_run
+run = MyRun.make_class_fixture("{python} pipeline")
+
+@pytest.mark.usefixtures("run")
+class TestMyPipeline(unittest.TestCase):
+
     def test_exit_code(self):
-        assert self.run.exit_code == 0
+        assert self.run_fixture.exit_code == 0
 """.format(python=sys.executable)
 
 
 def test_pipeline_basic(mockpipe, testdir):
-    """Test for basic execution order: before_run then after_run"""
+    """Test for basic run"""
     test = testdir.makepyfile(TEST_OK)
     result = testdir.runpytest("-v", "--base-pipeline-dir=" + test.dirname, test)
     result.stdout.fnmatch_lines([
-        "* collected 2 items"
+        "* collected 1 items"
     ])
-    expected = [False, False]
-    linenos = [0, 0]
+    expected = [False]
+    linenos = [0]
     for lineno, line in enumerate(result.outlines, start=1):
-        if line.endswith("TestMyPipeline::test_and_prep_executable PASSED"):
+        if line.endswith("TestMyPipeline::test_exit_code PASSED"):
             expected[0] = True
             linenos[0] = lineno
-        elif line.endswith("TestMyPipeline::test_exit_code PASSED"):
-            expected[1] = True
-            linenos[1] = lineno
     assert all(expected), "Not all tests in mock pipeline test found"
-    assert linenos[0] < linenos[1], "Mock pipeline test sorted in wrong order"
 
 
 TEST_REDIRECTION = """
-import os, shutil
-from pytest_pipeline import PipelineRun, PipelineTest, mark
+import os, shutil, unittest
+import pytest
+from pytest_pipeline import PipelineRun, mark
 
-class TestMyPipeline(PipelineTest):
-
-    run = PipelineRun(
-        cmd="{python} pipeline",
-        stdout="stream.out",
-        stderr="stream.err",
-    )
+class MyRun(PipelineRun):
 
     @mark.before_run
-    def test_and_prep_executable(self):
+    def prep_executable(self):
         shutil.copy2("../pipeline", "pipeline")
         assert os.path.exists("pipeline")
 
-    @mark.after_run
+run = MyRun.make_class_fixture(cmd="{python} pipeline",
+                             stdout="stream.out",
+                             stderr="stream.err")
+
+@pytest.mark.usefixtures("run")
+class TestMyPipeline(unittest.TestCase):
+
     def test_exit_code(self):
-        assert self.run.exit_code == 0
+        assert self.run_fixture.exit_code == 0
 """.format(python=sys.executable)
 
 
@@ -110,7 +110,7 @@ def test_pipeline_redirection(mockpipe, testdir):
     result.stdout.fnmatch_lines([
         "*TestMyPipeline::test_exit_code PASSED",
     ])
-    testdir_matches = glob.glob(os.path.join(test.dirname, "TestMyPipeline*"))
+    testdir_matches = glob.glob(os.path.join(test.dirname, "MyRun*"))
     assert len(testdir_matches) == 1
     testdir_pipeline = testdir_matches[0]
     stdout = os.path.join(testdir_pipeline, "stream.out")
@@ -121,97 +121,65 @@ def test_pipeline_redirection(mockpipe, testdir):
     assert open(stderr).read() == "stderr stream"
 
 
-TEST_NORUN = """
-import os, shutil
-from pytest_pipeline import PipelineRun, PipelineTest, mark
+TEST_AS_MODULE_FIXTURE = """
+import os, shutil, unittest
+import pytest
+from pytest_pipeline import PipelineRun, mark
 
-class TestMyPipeline(PipelineTest):
+class MyRun(PipelineRun):
 
     @mark.before_run
-    def test_and_prep_executable(self):
+    def prep_executable(self):
         shutil.copy2("../pipeline", "pipeline")
         assert os.path.exists("pipeline")
 
-    @mark.after_run
-    def test_exit_code(self):
-        assert self.run.exit_code == 0
+run = MyRun.make_module_fixture("{python} pipeline")
 
-    def test_standalone(self):
-        assert 1 == 1
+def test_exit_code(run):
+    assert run.exit_code == 0
 """.format(python=sys.executable)
 
 
-def test_pipeline_no_run(testdir):
+def test_pipeline_as_module_fixture(mockpipe, testdir):
     """Test for PipelineTest classes without run attribute"""
-    test = testdir.makepyfile(TEST_NORUN)
+    test = testdir.makepyfile(TEST_AS_MODULE_FIXTURE)
     result = testdir.runpytest("-v", "--base-pipeline-dir=" + test.dirname, test)
     result.stdout.fnmatch_lines([
-        "* collected 3 items"
+        "* collected 1 items"
     ])
-    expected = [False, False]
-    linenos = [0, 0]
+    expected = [False]
+    linenos = [0]
     for lineno, line in enumerate(result.outlines, start=1):
-        if line.endswith("TestMyPipeline::test_and_prep_executable SKIPPED"):
+        if line.endswith("test_pipeline_as_module_fixture.py::test_exit_code PASSED"):
             expected[0] = True
             linenos[0] = lineno
-        elif line.endswith("TestMyPipeline::test_exit_code SKIPPED"):
-            expected[1] = True
-            linenos[1] = lineno
-    assert all(expected), "Not all tests in mock pipeline test executed"
-    assert linenos[0] < linenos[1], "Mock pipeline test sorted in wrong order"
-    result.stdout.fnmatch_lines([
-        "*TestMyPipeline::test_standalone PASSED",
-    ])
-
-
-TEST_OK_WITH_NONCLASS = TEST_OK + """
-
-def test_function_standalone():
-    assert 1 == 1
-"""
-
-def test_pipeline_with_function(mockpipe, testdir):
-    """Test for basic execution order with non-class-based test."""
-    test = testdir.makepyfile(TEST_OK_WITH_NONCLASS)
-    result = testdir.runpytest("-v", "--base-pipeline-dir=" + test.dirname, test)
-    result.stdout.fnmatch_lines([
-        "* collected 3 items"
-    ])
-    expected = [False, False]
-    linenos = [0, 0]
-    for lineno, line in enumerate(result.outlines, start=1):
-        if line.endswith("TestMyPipeline::test_and_prep_executable PASSED"):
-            expected[0] = True
-            linenos[0] = lineno
-        elif line.endswith("TestMyPipeline::test_exit_code PASSED"):
-            expected[1] = True
-            linenos[1] = lineno
-    assert all(expected), "Not all tests in mock pipeline test executed"
-    assert linenos[0] < linenos[1], "Mock pipeline test sorted in wrong order"
+    assert all(expected), "Not all tests in mock pipeline test found"
 
 
 TEST_OK_GRANULAR = """
-import os, shutil
-from pytest_pipeline import PipelineRun, PipelineTest, mark
+import os, shutil, unittest
+import pytest
+from pytest_pipeline import PipelineRun, mark
 
-class TestMyPipeline(PipelineTest):
-
-    run = PipelineRun(cmd="{python} pipeline")
+class MyRun(PipelineRun):
 
     @mark.before_run(order=2)
-    def test_and_prep_executable(self):
+    def prep_executable(self):
         shutil.copy2("../pipeline", "pipeline")
         assert os.path.exists("pipeline")
 
     @mark.before_run(order=1)
-    def test_init_condition(self):
+    def check_init_condition(self):
         assert not os.path.exists("pipeline")
 
-    @mark.after_run(order=1)
-    def test_exit_code(self):
-        assert self.run.exit_code == 0
+run = MyRun.make_class_fixture(cmd="{python} pipeline")
 
-    @mark.after_run(order=2)
+@pytest.mark.usefixtures("run")
+class TestMyPipeline(unittest.TestCase):
+
+    def test_exit_code(self):
+        assert self.run_fixture.exit_code == 0
+
     def test_output_file(self):
         assert os.path.exists(os.path.join("output_dir", "results.txt"))
 """.format(python=sys.executable)
@@ -222,23 +190,17 @@ def test_pipeline_granular(mockpipe, testdir):
     test = testdir.makepyfile(TEST_OK_GRANULAR)
     result = testdir.runpytest("-v", "--base-pipeline-dir=" + test.dirname, test)
     result.stdout.fnmatch_lines([
-        "* collected 4 items"
+        "* collected 2 items"
     ])
-    expected = [False, False, False, False]
-    linenos = [0, 0, 0, 0]
+    expected = [False, False]
+    linenos = [0, 0]
     for lineno, line in enumerate(result.outlines, start=1):
-        if line.endswith("TestMyPipeline::test_init_condition PASSED"):
+        if line.endswith("TestMyPipeline::test_exit_code PASSED"):
             expected[0] = True
             linenos[0] = lineno
-        elif line.endswith("TestMyPipeline::test_and_prep_executable PASSED"):
+        elif line.endswith("TestMyPipeline::test_output_file PASSED"):
             expected[1] = True
             linenos[1] = lineno
-        elif line.endswith("TestMyPipeline::test_exit_code PASSED"):
-            expected[2] = True
-            linenos[2] = lineno
-        elif line.endswith("TestMyPipeline::test_output_file PASSED"):
-            expected[3] = True
-            linenos[3] = lineno
     assert all(expected), "Not all tests in mock pipeline test executed"
     assert linenos == sorted(linenos), "Mock pipeline test sorted in wrong order"
 
@@ -254,21 +216,25 @@ if __name__ == "__main__":
 
 
 TEST_TIMEOUT = """
-import os, shutil
-from pytest_pipeline import PipelineRun, PipelineTest, mark
+import os, shutil, unittest
+import pytest
+from pytest_pipeline import PipelineRun, mark
 
-class TestMyPipeline(PipelineTest):
-
-    run = PipelineRun(cmd="{python} pipeline", timeout=0.1)
+class MyRun(PipelineRun):
 
     @mark.before_run
     def test_and_prep_executable(self):
         shutil.copy2("../pipeline", "pipeline")
         assert os.path.exists("pipeline")
 
-    @mark.after_run
+run = PipelineRun.to_class_fixture(cmd="{python} pipeline",
+                                   timeout=0.01)
+
+@pytest.mark.usefixtures("run")
+class TestMyPipeline(unittest.TestCase):
+
     def test_exit_code(self):
-        assert self.run.exit_code != 0
+        assert self.run_fixture.exit_code != 0
 """.format(python=sys.executable)
 
 
@@ -284,6 +250,6 @@ def test_pipeline_timeout(mockpipe_timeout, testdir):
     test = testdir.makepyfile(TEST_TIMEOUT)
     result = testdir.runpytest("-v", "--base-pipeline-dir=" + test.dirname, test)
     result.stdout.fnmatch_lines([
-        "* collected 2 items",
-        "*Failed: Process is taking longer than 0.1 seconds",
+        "* collected 1 items",
+        "*Failed: Process is taking longer than 0.01 seconds",
     ])
