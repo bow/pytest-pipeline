@@ -93,8 +93,8 @@ class MyRun(PipelineRun):
         assert os.path.exists("pipeline")
 
 run = MyRun.make_class_fixture(cmd="{python} pipeline",
-                             stdout="stream.out",
-                             stderr="stream.err")
+                               stdout="stream.out",
+                               stderr="stream.err")
 
 @pytest.mark.usefixtures("run")
 class TestMyPipeline(unittest.TestCase):
@@ -227,8 +227,8 @@ class MyRun(PipelineRun):
         shutil.copy2("../pipeline", "pipeline")
         assert os.path.exists("pipeline")
 
-run = PipelineRun.to_class_fixture(cmd="{python} pipeline",
-                                   timeout=0.01)
+run = PipelineRun.make_class_fixture(cmd="{python} pipeline",
+                                     timeout=0.01)
 
 @pytest.mark.usefixtures("run")
 class TestMyPipeline(unittest.TestCase):
