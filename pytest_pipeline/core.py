@@ -78,7 +78,7 @@ class PipelineRun(object):
         return sorted(funcs, key=lambda f: getattr(f, "_before_run_order"))
 
     @classmethod
-    def _make_fixture(cls, scope, *args, **kwargs):
+    def make_fixture(cls, scope, *args, **kwargs):
 
         @pytest.fixture(scope=scope)
         def fixture(request):
@@ -115,14 +115,6 @@ class PipelineRun(object):
             request.cls.run_fixture = run
 
         return fixture
-
-    @classmethod
-    def make_class_fixture(cls, *args, **kwargs):
-        return cls._make_fixture("class", *args, **kwargs)
-
-    @classmethod
-    def make_module_fixture(cls, *args, **kwargs):
-        return cls._make_fixture("module", *args, **kwargs)
 
     @property
     def run_id(self):
