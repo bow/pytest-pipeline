@@ -80,6 +80,44 @@ def test_pipeline_basic(mockpipe, testdir):
     assert all(expected), "Not all tests in mock pipeline test found"
 
 
+TEST_OK_CLASS_FIXTURE = """
+import os, shutil, unittest
+import pytest
+from pytest_pipeline import PipelineRun, mark
+
+class MyRun(PipelineRun):
+
+    @mark.before_run
+    def prep_executable(self):
+        shutil.copy2("../pipeline", "pipeline")
+        assert os.path.exists("pipeline")
+
+run = MyRun.class_fixture("{python} pipeline")
+
+@pytest.mark.usefixtures("run")
+class TestMyPipelineAgain(unittest.TestCase):
+
+    def test_exit_code(self):
+        assert self.run_fixture.exit_code == 0
+""".format(python=sys.executable)
+
+
+def test_pipeline_class_fixture(mockpipe, testdir):
+    """Test for basic run"""
+    test = testdir.makepyfile(TEST_OK_CLASS_FIXTURE)
+    result = testdir.runpytest("-v", "--base-pipeline-dir=" + test.dirname, test)
+    result.stdout.fnmatch_lines([
+        "* collected 1 items"
+    ])
+    expected = [False]
+    linenos = [0]
+    for lineno, line in enumerate(result.outlines, start=1):
+        if line.endswith("TestMyPipelineAgain::test_exit_code PASSED"):
+            expected[0] = True
+            linenos[0] = lineno
+    assert all(expected), "Not all tests in mock pipeline test found"
+
+
 TEST_REDIRECTION = """
 import os, shutil, unittest
 import pytest
