@@ -27,6 +27,3 @@ def pytest_addoption(parser):
     group.addoption("--xfail-pipeline", dest="xfail_pipeline", action="store_true",
                     default=False,
                     help="Whether to fail a class immediately if any of its tests fail")
-    group.addoption("--skip-run", dest="skip_run", action="store_true",
-                    default=False,
-                    help="Whether to skip the pipeline run and all tests after it")
