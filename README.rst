@@ -80,7 +80,8 @@ With the pipeline above, here's how your test would look like with
             assert utils.file_md5sum("result.txt") == "50a2fabfdd276f573ff97ace8b11c5f4"
 
         def test_exit_code(self):
-            assert self.run.exit_code == 0
+            # the run fixture is stored as the `run_fixture` attribute
+            assert self.run_fixture.exit_code == 0
 
         # we can check the stdout that we capture as well
         def test_stdout(self):
