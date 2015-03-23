@@ -15,14 +15,14 @@ import hashlib
 import os
 
 
-def file_md5sum(fname, unzip=False, mode="r", blocksize=65536):
+def file_md5sum(fname, unzip=False, blocksize=65536, encoding="utf-8"):
     if unzip:
         opener = gzip.open
     else:
         opener = open
 
     hasher = hashlib.md5()
-    with opener(fname, mode) as src:
+    with opener(fname, "rb") as src:
         buf = src.read(blocksize)
         while len(buf) > 0:
             hasher.update(buf)
