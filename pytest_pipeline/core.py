@@ -41,7 +41,7 @@ class PipelineRun(object):
         self.run_dir = None
 
     def __repr__(self):
-        return "{0}(...)".format(self.__class__.__name__)
+        return "{0}(run_id={1}, ...)".format(self.__class__.__name__, self.run_id)
 
     def __launch_main_process(self):
 
@@ -96,8 +96,7 @@ class PipelineRun(object):
                 root_test_dir = os.path.join(tempfile.tempdir, "pipeline_tests")
                 if not os.path.exists(root_test_dir):
                     os.makedirs(root_test_dir)
-            test_dir = os.path.join(root_test_dir,
-                                    run.__class__.__name__ + "_" + run.run_id)
+            test_dir = os.path.join(root_test_dir, run.run_id)
             run.run_dir = test_dir
             # warn if we are removing existing directory?
             if os.path.exists(test_dir):
@@ -124,7 +123,7 @@ class PipelineRun(object):
     @property
     def run_id(self):
         if not hasattr(self, "_run_id"):
-            self._run_id = str(uuid4())
+            self._run_id = self.__class__.__name__ + "_" + str(uuid4())
         return self._run_id
 
     @property
