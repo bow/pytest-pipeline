@@ -113,9 +113,6 @@ class PipelineRun(object):
             if scope != "class":
                 return run
 
-            if hasattr(request.cls, "run_fixture"):
-                raise ValueError("Can not overwrite existing 'run_fixture' "
-                                "attribute from class")
             request.cls.run_fixture = run
 
         return fixture
