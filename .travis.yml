@@ -13,7 +13,7 @@ before_install:
     - pip install -r requirements-dev.txt
 
 install:
-    - python setup.py install
+    - pip install --editable .
     - pip install coveralls --use-wheel
 
 script:
