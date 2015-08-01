@@ -67,17 +67,11 @@ class TestMyPipeline(unittest.TestCase):
 def test_pipeline_basic(mockpipe, testdir):
     """Test for basic run"""
     test = testdir.makepyfile(TEST_OK)
-    result = testdir.runpytest("-v", "--base-pipeline-dir=" + test.dirname, test)
-    result.stdout.fnmatch_lines([
-        "* collected 1 items"
-    ])
-    expected = [False]
-    linenos = [0]
-    for lineno, line in enumerate(result.outlines, start=1):
-        if line.endswith("TestMyPipeline::test_exit_code PASSED"):
-            expected[0] = True
-            linenos[0] = lineno
-    assert all(expected), "Not all tests in mock pipeline test found"
+    result = testdir.inline_run("-v", "--base-pipeline-dir=" + test.dirname, test)
+    passed, skipped, failed = result.listoutcomes()
+    assert len(passed) == 1
+    assert len(skipped) == 0
+    assert len(failed) == 0
 
 
 TEST_OK_CLASS_FIXTURE = """
@@ -105,17 +99,11 @@ class TestMyPipelineAgain(unittest.TestCase):
 def test_pipeline_class_fixture(mockpipe, testdir):
     """Test for basic run"""
     test = testdir.makepyfile(TEST_OK_CLASS_FIXTURE)
-    result = testdir.runpytest("-v", "--base-pipeline-dir=" + test.dirname, test)
-    result.stdout.fnmatch_lines([
-        "* collected 1 items"
-    ])
-    expected = [False]
-    linenos = [0]
-    for lineno, line in enumerate(result.outlines, start=1):
-        if line.endswith("TestMyPipelineAgain::test_exit_code PASSED"):
-            expected[0] = True
-            linenos[0] = lineno
-    assert all(expected), "Not all tests in mock pipeline test found"
+    result = testdir.inline_run("-v", "--base-pipeline-dir=" + test.dirname, test)
+    passed, skipped, failed = result.listoutcomes()
+    assert len(passed) == 1
+    assert len(skipped) == 0
+    assert len(failed) == 0
 
 
 TEST_REDIRECTION = """
@@ -144,10 +132,11 @@ class TestMyPipeline(unittest.TestCase):
 
 def test_pipeline_redirection(mockpipe, testdir):
     test = testdir.makepyfile(TEST_REDIRECTION)
-    result = testdir.runpytest("-v", "--base-pipeline-dir=" + test.dirname, test)
-    result.stdout.fnmatch_lines([
-        "*TestMyPipeline::test_exit_code PASSED",
-    ])
+    result = testdir.inline_run("-v", "--base-pipeline-dir=" + test.dirname, test)
+    passed, skipped, failed = result.listoutcomes()
+    assert len(passed) == 1
+    assert len(skipped) == 0
+    assert len(failed) == 0
     testdir_matches = glob.glob(os.path.join(test.dirname, "MyRun*"))
     assert len(testdir_matches) == 1
     testdir_pipeline = testdir_matches[0]
@@ -181,17 +170,11 @@ def test_exit_code(run):
 def test_pipeline_as_nonclass_fixture(mockpipe, testdir):
     """Test for PipelineTest classes without run attribute"""
     test = testdir.makepyfile(TEST_AS_NONCLASS_FIXTURE)
-    result = testdir.runpytest("-v", "--base-pipeline-dir=" + test.dirname, test)
-    result.stdout.fnmatch_lines([
-        "* collected 1 items"
-    ])
-    expected = [False]
-    linenos = [0]
-    for lineno, line in enumerate(result.outlines, start=1):
-        if line.endswith("test_pipeline_as_nonclass_fixture.py::test_exit_code PASSED"):
-            expected[0] = True
-            linenos[0] = lineno
-    assert all(expected), "Not all tests in mock pipeline test found"
+    result = testdir.inline_run("-v", "--base-pipeline-dir=" + test.dirname, test)
+    passed, skipped, failed = result.listoutcomes()
+    assert len(passed) == 1
+    assert len(skipped) == 0
+    assert len(failed) == 0
 
 
 TEST_OK_GRANULAR = """
@@ -226,21 +209,11 @@ class TestMyPipeline(unittest.TestCase):
 def test_pipeline_granular(mockpipe, testdir):
     """Test for execution with 'order' specified in before_run and after_run"""
     test = testdir.makepyfile(TEST_OK_GRANULAR)
-    result = testdir.runpytest("-v", "--base-pipeline-dir=" + test.dirname, test)
-    result.stdout.fnmatch_lines([
-        "* collected 2 items"
-    ])
-    expected = [False, False]
-    linenos = [0, 0]
-    for lineno, line in enumerate(result.outlines, start=1):
-        if line.endswith("TestMyPipeline::test_exit_code PASSED"):
-            expected[0] = True
-            linenos[0] = lineno
-        elif line.endswith("TestMyPipeline::test_output_file PASSED"):
-            expected[1] = True
-            linenos[1] = lineno
-    assert all(expected), "Not all tests in mock pipeline test executed"
-    assert linenos == sorted(linenos), "Mock pipeline test sorted in wrong order"
+    result = testdir.inline_run("-v", "--base-pipeline-dir=" + test.dirname, test)
+    passed, skipped, failed = result.listoutcomes()
+    assert len(passed) == 2
+    assert len(skipped) == 0
+    assert len(failed) == 0
 
 
 MOCK_PIPELINE_TIMEOUT = """
@@ -286,8 +259,8 @@ def mockpipe_timeout(request, testdir):
 def test_pipeline_timeout(mockpipe_timeout, testdir):
     """Test for execution with timeout"""
     test = testdir.makepyfile(TEST_TIMEOUT)
-    result = testdir.runpytest("-v", "--base-pipeline-dir=" + test.dirname, test)
-    result.stdout.fnmatch_lines([
-        "* collected 1 items",
-        "*Failed: Process is taking longer than 0.01 seconds",
-    ])
+    result = testdir.inline_run("-v", "--base-pipeline-dir=" + test.dirname, test)
+    passed, skipped, failed = result.listoutcomes()
+    assert len(passed) == 0
+    assert len(skipped) == 0
+    assert len(failed) == 1
