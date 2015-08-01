@@ -6,15 +6,20 @@ notifications:
 language: python
 
 python:
-    - "2.7"
-    - "3.3"
     - "3.4"
+    - "3.3"
+    - "2.7"
 
 before_install:
-    - "pip install -r requirements.txt -r requirements-dev.txt"
+    - pip install -r requirements-dev.txt
 
 install:
-    - "python setup.py install"
+    - python setup.py install
+    - pip install coveralls --use-wheel
 
 script:
-    - "py.test -v tests"
+    - coverage run --source=pytest_pipeline `which py.test` --flake8 tests pytest_pipeline
+
+after_success:
+    - coverage report -m
+    - coveralls
