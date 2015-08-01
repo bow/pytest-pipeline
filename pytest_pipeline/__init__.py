@@ -22,6 +22,6 @@ __homepage__ = "https://github.com/bow/pytest-pipeline"
 
 # so we can keep the info above for setup.py
 try:
-    from .core import PipelineRun
+    from .core import PipelineRun  # noqa
 except ImportError:
     pass

@@ -1,4 +1,4 @@
-#TODO: unit tests ~ these are closer to integration/functional tests
+# TODO: unit tests ~ these are closer to integration/functional tests
 import glob
 import os
 import sys
@@ -35,6 +35,7 @@ if __name__ == "__main__":
         result.write("42\\n")
 """
 
+
 @pytest.fixture(scope="function")
 def mockpipe(request, testdir):
     """Mock pipeline script"""
@@ -67,7 +68,8 @@ class TestMyPipeline(unittest.TestCase):
 def test_pipeline_basic(mockpipe, testdir):
     """Test for basic run"""
     test = testdir.makepyfile(TEST_OK)
-    result = testdir.inline_run("-v", "--base-pipeline-dir=" + test.dirname, test)
+    result = testdir.inline_run("-v", "--base-pipeline-dir=" + test.dirname,
+                                test)
     passed, skipped, failed = result.listoutcomes()
     assert len(passed) == 1
     assert len(skipped) == 0
@@ -99,7 +101,8 @@ class TestMyPipelineAgain(unittest.TestCase):
 def test_pipeline_class_fixture(mockpipe, testdir):
     """Test for basic run"""
     test = testdir.makepyfile(TEST_OK_CLASS_FIXTURE)
-    result = testdir.inline_run("-v", "--base-pipeline-dir=" + test.dirname, test)
+    result = testdir.inline_run("-v", "--base-pipeline-dir=" + test.dirname,
+                                test)
     passed, skipped, failed = result.listoutcomes()
     assert len(passed) == 1
     assert len(skipped) == 0
@@ -132,7 +135,8 @@ class TestMyPipeline(unittest.TestCase):
 
 def test_pipeline_redirection(mockpipe, testdir):
     test = testdir.makepyfile(TEST_REDIRECTION)
-    result = testdir.inline_run("-v", "--base-pipeline-dir=" + test.dirname, test)
+    result = testdir.inline_run("-v", "--base-pipeline-dir=" + test.dirname,
+                                test)
     passed, skipped, failed = result.listoutcomes()
     assert len(passed) == 1
     assert len(skipped) == 0
@@ -170,7 +174,8 @@ def test_exit_code(run):
 def test_pipeline_as_nonclass_fixture(mockpipe, testdir):
     """Test for PipelineTest classes without run attribute"""
     test = testdir.makepyfile(TEST_AS_NONCLASS_FIXTURE)
-    result = testdir.inline_run("-v", "--base-pipeline-dir=" + test.dirname, test)
+    result = testdir.inline_run("-v", "--base-pipeline-dir=" + test.dirname,
+                                test)
     passed, skipped, failed = result.listoutcomes()
     assert len(passed) == 1
     assert len(skipped) == 0
@@ -209,7 +214,8 @@ class TestMyPipeline(unittest.TestCase):
 def test_pipeline_granular(mockpipe, testdir):
     """Test for execution with 'order' specified in before_run and after_run"""
     test = testdir.makepyfile(TEST_OK_GRANULAR)
-    result = testdir.inline_run("-v", "--base-pipeline-dir=" + test.dirname, test)
+    result = testdir.inline_run("-v", "--base-pipeline-dir=" + test.dirname,
+                                test)
     passed, skipped, failed = result.listoutcomes()
     assert len(passed) == 2
     assert len(skipped) == 0
@@ -259,7 +265,8 @@ def mockpipe_timeout(request, testdir):
 def test_pipeline_timeout(mockpipe_timeout, testdir):
     """Test for execution with timeout"""
     test = testdir.makepyfile(TEST_TIMEOUT)
-    result = testdir.inline_run("-v", "--base-pipeline-dir=" + test.dirname, test)
+    result = testdir.inline_run("-v", "--base-pipeline-dir=" + test.dirname,
+                                test)
     passed, skipped, failed = result.listoutcomes()
     assert len(passed) == 0
     assert len(skipped) == 0

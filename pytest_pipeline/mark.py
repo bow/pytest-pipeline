@@ -24,19 +24,23 @@ def before_run(__firstarg=None, order=sys.maxsize, **kwargz):
         assert not hasattr(func, "_before_run_order"), \
             "Can not set existing '_before_run_order' attribute"
         func._before_run_order = order
+
         @wraps(func)
         def wrapped(self, *args, **kwargs):
             return func(self, *args, **kwargs)
+
         return wrapped
     # other cases: when decorator has args
     elif __firstarg is None:
         def onion(func):       # layers, right?
             assert not hasattr(func, "_before_run_order"), \
-                    "Can not set existing '_before_run_order' attribute"
+                "Can not set existing '_before_run_order' attribute"
             func._before_run_order = order
+
             @wraps(func)
             def wrapped(self, *args, **kwargs):
                 return func(self, *args, **kwargs)
+
             return wrapped
         return onion
     # fall through other cases

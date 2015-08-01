@@ -24,7 +24,7 @@ import pytest
 from past.builtins import basestring
 
 
-#TODO: allow multiple runs to be executed in test pipelines
+# TODO: allow multiple runs to be executed in test pipelines
 
 class PipelineRun(object):
 
@@ -41,7 +41,8 @@ class PipelineRun(object):
         self.run_dir = None
 
     def __repr__(self):
-        return "{0}(run_id={1}, ...)".format(self.__class__.__name__, self.run_id)
+        return "{0}(run_id={1}, ...)".format(self.__class__.__name__,
+                                             self.run_id)
 
     def __launch_main_process(self):
 
@@ -93,7 +94,8 @@ class PipelineRun(object):
             # create base pipeline dir if it does not exist
             root_test_dir = request.config.option.base_pipeline_dir
             if root_test_dir is None:
-                root_test_dir = os.path.join(tempfile.tempdir, "pipeline_tests")
+                root_test_dir = os.path.join(tempfile.tempdir,
+                                             "pipeline_tests")
                 if not os.path.exists(root_test_dir):
                     os.makedirs(root_test_dir)
             test_dir = os.path.join(root_test_dir, run.run_id)
@@ -102,7 +104,10 @@ class PipelineRun(object):
             if os.path.exists(test_dir):
                 shutil.rmtree
             os.makedirs(test_dir)
-            def done(): os.chdir(init_dir)
+
+            def done():
+                os.chdir(init_dir)
+
             request.addfinalizer(done)
 
             os.chdir(test_dir)
