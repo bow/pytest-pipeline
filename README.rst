@@ -1,24 +1,25 @@
-===============================
 pytest-pipeline
-===============================
+===============
 
+|ci| |coverage| |pypi|
 
-.. image:: https://travis-ci.org/bow/pytest-pipeline.png?branch=master
+.. |ci| image:: https://travis-ci.org/bow/pytest-pipeline.png?branch=master
         :target: https://travis-ci.org/bow/pytest-pipeline
 
-.. image:: https://coveralls.io/repos/bow/pytest-pipeline/badge.svg?branch=master&service=github
+.. |coverage| image:: https://coveralls.io/repos/bow/pytest-pipeline/badge.svg?branch=master&service=github
         :target: https://coveralls.io/github/bow/pytest-pipeline?branch=master
 
-.. image:: https://badge.fury.io/py/pytest-pipeline.svg
+.. |pypi| image:: https://badge.fury.io/py/pytest-pipeline.svg
         :target: http://badge.fury.io/py/pytest-pipeline
 
 
-pytest-pipeline is a Python3-compatible pytest plugin for functional testing
-of data analysis pipelines. They are usually long-running scripts or executables
-with multiple input and/or output files + directories.
+pytest-pipeline is a pytest plugin for functional testing of data analysis
+pipelines. They are usually long-running scripts or executables with multiple
+input and/or output files + directories. The plugin is meant for end-to-end
+testing where you test for conditions before the pipeline run and after the
+pipeline runs (output files, checksums, etc.).
 
-It is meant for end-to-end testing where you test for conditions before the
-pipeline run and after the pipeline runs (output files, checksums, etc.).
+pytest-pipeline is tested against Python versions 2.7, 3.3, 3.4, and 3.5.
 
 
 Installation
