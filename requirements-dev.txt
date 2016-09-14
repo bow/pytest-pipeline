@@ -1,4 +1,5 @@
-coverage==3.7.1
-flake8==2.4.1
-pytest-flake8==0.1
-tox==1.7.2
+coverage==4.2
+flake8==3.0.4
+pytest-flake8==0.6
+tox==2.3.1
+wheel>=0.29.0
