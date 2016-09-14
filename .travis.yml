@@ -14,7 +14,7 @@ before_install:
     - pip install -r requirements-dev.txt
 
 install:
-    - python setup.py install
+    - pip install -e .
     - pip install codecov==2.0.5
 
 script:
