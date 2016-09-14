@@ -6,8 +6,8 @@ pytest-pipeline
 .. |ci| image:: https://travis-ci.org/bow/pytest-pipeline.png?branch=master
         :target: https://travis-ci.org/bow/pytest-pipeline
 
-.. |coverage| image:: https://coveralls.io/repos/bow/pytest-pipeline/badge.svg?branch=master&service=github
-        :target: https://coveralls.io/github/bow/pytest-pipeline?branch=master
+.. |coverage| image:: https://codecov.io/gh/bow/pytest-pipeline/branch/master/graph/badge.svg
+        :target: https://codecov.io/gh/bow/pytest-pipeline
 
 .. |pypi| image:: https://badge.fury.io/py/pytest-pipeline.svg
         :target: http://badge.fury.io/py/pytest-pipeline

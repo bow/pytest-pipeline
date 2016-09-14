@@ -15,11 +15,11 @@ before_install:
 
 install:
     - python setup.py install
-    - pip install coveralls --use-wheel
+    - pip install codecov==2.0.5
 
 script:
     - coverage run --source=pytest_pipeline `which py.test` --flake8 tests pytest_pipeline
 
 after_success:
     - coverage report -m
-    - coveralls
+    - codecov
