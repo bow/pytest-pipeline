@@ -74,7 +74,10 @@ class PipelineRun(object):
     @classmethod
     def _get_before_run_funcs(cls):
         funcs = []
-        pred = lambda m: hasattr(m, "_before_run_order")
+
+        def pred(obj):
+            return hasattr(obj, "_before_run_order")
+
         for _, func in inspect.getmembers(cls, predicate=pred):
             funcs.append(func)
         return sorted(funcs, key=lambda f: getattr(f, "_before_run_order"))
