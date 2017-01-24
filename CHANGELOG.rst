@@ -1,7 +1,7 @@
 .. :changelog:
 
-History
--------
+Changelog
+---------
 
 v0.2.0 (31 March 2015)
 ----------------------
