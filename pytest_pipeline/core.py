@@ -46,21 +46,25 @@ class PipelineRun(object):
 
     def __launch_main_process(self):
 
-        def target():
-            self._process = subprocess.Popen(self._toks, stdout=self.stdout,
-                                             stderr=self.stderr)
-            while self._process.poll() is None:
-                time.sleep(self.poll_time)
-
         if isinstance(self.stdout, basestring):
             self.stdout = open(self.stdout, "w")
         elif self.stdout is None:
             self.stdout = open(os.devnull, "w")
+        elif self.stdout is True:
+            self.stdout = subprocess.PIPE
 
         if isinstance(self.stderr, basestring):
             self.stderr = open(self.stderr, "w")
         elif self.stderr is None:
             self.stderr = open(os.devnull, "w")
+        elif self.stderr is True:
+            self.stderr = subprocess.PIPE
+
+        def target():
+            self._process = subprocess.Popen(self._toks, stdout=self.stdout,
+                                             stderr=self.stderr)
+            while self._process.poll() is None:
+                time.sleep(self.poll_time)
 
         thread = threading.Thread(target=target)
         thread.start()
@@ -70,6 +74,11 @@ class PipelineRun(object):
             self._process.terminate()
             pytest.fail("Process is taking longer than {0} "
                         "seconds".format(self.timeout))
+
+        if self.stdout == subprocess.PIPE:
+            self.stdout = self._process.stdout.read()
+        if self.stderr == subprocess.PIPE:
+            self.stderr = self._process.stderr.read()
 
     @classmethod
     def _get_before_run_funcs(cls):

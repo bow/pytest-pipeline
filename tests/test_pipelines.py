@@ -152,6 +152,47 @@ def test_pipeline_redirection(mockpipe, testdir):
     assert open(stderr).read() == "stderr stream"
 
 
+TEST_REDIRECTION_MEM = """
+import os, shutil, unittest
+import pytest
+from pytest_pipeline import PipelineRun, mark
+
+class MyRun(PipelineRun):
+
+    @mark.before_run
+    def prep_executable(self):
+        shutil.copy2("../pipeline", "pipeline")
+        assert os.path.exists("pipeline")
+
+run = MyRun.make_fixture("class", cmd="{python} pipeline",
+                         stdout=True, stderr=True)
+
+@pytest.mark.usefixtures("run")
+class TestMyPipeline(unittest.TestCase):
+
+    def test_exit_code(self):
+        assert self.run_fixture.exit_code == 0
+
+    def test_stdout(self):
+        assert self.run_fixture.stdout == b"stdout stream"
+
+    def test_stderr(self):
+        assert self.run_fixture.stderr == b"stderr stream"
+""".format(python=sys.executable)
+
+
+def test_pipeline_redirection_mem(mockpipe, testdir):
+    test = testdir.makepyfile(TEST_REDIRECTION_MEM)
+    result = testdir.inline_run("-v", "--base-pipeline-dir=" + test.dirname,
+                                test)
+    passed, skipped, failed = result.listoutcomes()
+    assert len(passed) == 3
+    assert len(skipped) == 0
+    assert len(failed) == 0
+    testdir_matches = glob.glob(os.path.join(test.dirname, "MyRun*"))
+    assert len(testdir_matches) == 1
+
+
 TEST_AS_NONCLASS_FIXTURE = """
 import os, shutil, unittest
 import pytest

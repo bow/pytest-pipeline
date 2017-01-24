@@ -110,8 +110,12 @@ You just executed your first pipeline test. The plugin itself gives you:
 - Automatic execution of the pipeline.
   No need to ``import subprocess``, just define the command via the
   ``PipelineRun`` object. We optionally captured the standard output to a file
-  called ``run.stdout`` as well. For long running pipelines, you can also supply
-  a ``timeout`` argument which limits how long the pipeline process can run.
+  called ``run.stdout``. Not a fan of doing disk IO? You can also set ``stdout``
+  and/or ``stderr`` to ``True`` and have their values captured in-memory.
+
+- Timeout control.
+  For long running pipelines, you can also supply a ``timeout`` argument which
+  limits how long the pipeline process can run.
 
 And since this is a py.test plugin, test discovery and execution is done via
 py.test.
