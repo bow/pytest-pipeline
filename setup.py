@@ -21,7 +21,8 @@ with open("requirements-dev.txt") as src:
 setup(
     name="pytest-pipeline",
     version=__version__,
-    description="Pytest plugin for functional testing of data analysis pipelines",
+    description="Pytest plugin for functional testing of data analysis"
+    "pipelines",
     long_description=readme + "\n\n" + changelog,
     author=__author__,
     author_email=__contact__,
@@ -47,6 +48,8 @@ setup(
         "Programming Language :: Python :: 2.7",
         "Programming Language :: Python :: 3.3",
         "Programming Language :: Python :: 3.4",
+        "Programming Language :: Python :: 3.5",
+        "Programming Language :: Python :: 3.6",
         "Topic :: Utilities",
         "Topic :: Software Development :: Testing",
         "Topic :: Software Development :: Libraries",
