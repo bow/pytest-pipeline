@@ -3,6 +3,14 @@
 Changelog
 ---------
 
+v0.3.0 (24 January 2017)
+------------------------
+
+* Allow stdout and/or stderr capture in-memory. This can be done by
+  setting their respective keyword arguments to ``True`` when creating
+  the run fixture.
+
+
 v0.2.0 (31 March 2015)
 ----------------------
 
