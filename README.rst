@@ -33,8 +33,8 @@ Installation
 Walkthrough
 ===========
 
-For our example, we will use a super simple pipeline that writes a file and
-prints to stdout:
+For our example, we will use a super simple pipeline (an executable, really)
+that writes a file and prints to stdout:
 
 .. code-block:: python
 
@@ -48,8 +48,8 @@ prints to stdout:
             result.write("42\n")
         print("Result computed")
 
-At this point it's just a simple script, but it should be enough to illustrate
-the plugin. Also, if you want to follow along, save the above file as
+At this point it's just a simple script, but it is enough to represent a single,
+long running task to be tested. If you want to follow along, save the above file as
 ``run_pipeline``.
 
 With the pipeline above, here's how your test would look like with
@@ -94,8 +94,8 @@ With the pipeline above, here's how your test would look like with
             assert open("run.stdout", "r").read().strip() == "Result computed"
 
 If the test above is saved as ``test_demo.py``, you can then run the test by
-executing ``py.test -v test_demo.py``. You should see that three tests were
-executed and all four passed.
+executing ``py.test -v test_demo.py``. You should see that four passing tests:
+one that is done prior to the script run and three that are done afterwards.
 
 What just happened?
 -------------------
@@ -116,6 +116,8 @@ You just executed your first pipeline test. The plugin itself gives you:
 - Timeout control.
   For long running pipelines, you can also supply a ``timeout`` argument which
   limits how long the pipeline process can run.
+
+- Some simple utility methods for working with files.
 
 And since this is a py.test plugin, test discovery and execution is done via
 py.test.
