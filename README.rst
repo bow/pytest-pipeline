@@ -105,7 +105,9 @@ You just executed your first pipeline test. The plugin itself gives you:
 - Test directory creation (one class gets one directory).
   By default, testdirectories are all created in the ``/tmp/pipeline_test``
   directory. You can tweak this location by supplying the
-  ``--base-pipeline-dir`` command line flag.
+  ``--base-pipeline-dir`` command line flag. Need access to the directory
+  name for the command invocation? Use the ``{run_dir}`` placeholder
+  in the string command.
 
 - Automatic execution of the pipeline.
   No need to ``import subprocess``, just define the command via the

@@ -36,7 +36,6 @@ class PipelineRun(object):
         self.poll_time = poll_time
         self.timeout = float(timeout) if timeout is not None else timeout
         self._process = None
-        self._toks = shlex.split(cmd)
         # set by the make_fixture functions at runtime
         self.run_dir = None
 
@@ -61,7 +60,9 @@ class PipelineRun(object):
             self.stderr = subprocess.PIPE
 
         def target():
-            self._process = subprocess.Popen(self._toks, stdout=self.stdout,
+            toks = shlex.split(
+                self.cmd.format(run_dir="'" + self.run_dir + "'"))
+            self._process = subprocess.Popen(toks, stdout=self.stdout,
                                              stderr=self.stderr)
             while self._process.poll() is None:
                 time.sleep(self.poll_time)

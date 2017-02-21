@@ -3,6 +3,18 @@
 Changelog
 =========
 
+Version 0.4
+-----------
+
+Release 0.4.0
+^^^^^^^^^^^^^
+
+Release date: TBD
+
+* Allow for the passed in command to access the run directory name
+  via ``{run_dir}``.
+
+
 Version 0.3
 -----------
 

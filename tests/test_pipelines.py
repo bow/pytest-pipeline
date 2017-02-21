@@ -312,3 +312,59 @@ def test_pipeline_timeout(mockpipe_timeout, testdir):
     assert len(passed) == 0
     assert len(skipped) == 0
     assert len(failed) == 1
+
+
+MOCK_PIPELINE_FMT = """
+#!/usr/bin/env python
+
+import sys
+
+if __name__ == "__main__":
+
+    print(sys.argv[1])
+"""
+
+
+TEST_FMT = """
+import os, shutil, unittest
+import pytest
+from pytest_pipeline import PipelineRun, mark
+
+class MyRun(PipelineRun):
+
+    @mark.before_run
+    def prep_executable(self):
+        shutil.copy2("../pipeline", "pipeline")
+        assert os.path.exists("pipeline")
+
+run = MyRun.make_fixture("class", "{python} pipeline {{run_dir}}",
+                         stdout=True)
+
+@pytest.mark.usefixtures("run")
+class TestMyPipeline(unittest.TestCase):
+
+    def test_exit_code(self):
+        assert self.run_fixture.exit_code == 0
+
+    def test_stdout(self):
+        stdout = self.run_fixture.stdout.decode("utf-8").strip()
+        assert self.run_fixture.run_dir == stdout
+""".format(python=sys.executable)
+
+
+@pytest.fixture(scope="function")
+def mockpipe_fmt(request, testdir):
+    """Mock pipeline script with timeout"""
+    mp = testdir.makefile("", pipeline=MOCK_PIPELINE_FMT)
+    return mp
+
+
+def test_pipeline_fmt(mockpipe_fmt, testdir):
+    """Test for run with templated command"""
+    test = testdir.makepyfile(TEST_FMT)
+    result = testdir.inline_run("-v", "--base-pipeline-dir=" + test.dirname,
+                                test)
+    passed, skipped, failed = result.listoutcomes()
+    assert len(passed) == 2
+    assert len(skipped) == 0
+    assert len(failed) == 0
