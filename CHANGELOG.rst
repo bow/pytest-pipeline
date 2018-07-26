@@ -13,6 +13,7 @@ Release date: TBD
 
 * Allow for the passed in command to access the run directory name
   via ``{run_dir}``.
+* Drop official support for Python 3.3.
 
 
 Version 0.3
