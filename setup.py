@@ -30,10 +30,10 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     install_requires=requirements,
+    extras_require={"dev": test_requirements},
     license="BSD",
     zip_safe=False,
     keywords="pytest pipeline plugin testing",
-    tests_require=test_requirements,
     entry_points={
         "pytest11": [
             "pytest-pipeline = pytest_pipeline.plugin",
