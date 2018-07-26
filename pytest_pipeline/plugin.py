@@ -5,10 +5,8 @@
 
     pytest plugin entry point.
 
-    :copyright: (c) 2014 Wibowo Arindrarto <bow@bow.web.id>
-    :license: BSD
-
 """
+# (c) 2014-2018 Wibowo Arindrarto <bow@bow.web.id>
 
 
 def pytest_addoption(parser):

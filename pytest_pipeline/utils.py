@@ -5,10 +5,8 @@
 
     General utilities.
 
-    :copyright: (c) 2014 Wibowo Arindrarto <bow@bow.web.id>
-    :license: BSD
-
 """
+# (c) 2014-2018 Wibowo Arindrarto <bow@bow.web.id>
 
 import gzip
 import hashlib

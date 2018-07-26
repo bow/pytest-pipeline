@@ -5,10 +5,10 @@
 
     Pytest plugin for functional testing of data analysis pipelines.
 
-    :copyright: (c) 2014 Wibowo Arindrarto <bow@bow.web.id>
     :license: BSD
 
 """
+# (c) 2014-2018 Wibowo Arindrarto <bow@bow.web.id>
 
 RELEASE = False
 

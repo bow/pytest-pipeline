@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+# (c) 2014-2018 Wibowo Arindrarto <bow@bow.web.id>
+
 # TODO: unit tests ~ these are closer to integration/functional tests
 import glob
 import os
