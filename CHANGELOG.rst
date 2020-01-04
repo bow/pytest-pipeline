@@ -14,6 +14,7 @@ Release date: TBD
 * Allow for the passed in command to access the run directory name
   via ``{run_dir}``.
 * Drop official support for Python 2.7, 3.3, 3.4, and 3.5.
+* Drop official support for pytest <5.0.0.
 
 
 Version 0.3
