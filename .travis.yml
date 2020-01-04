@@ -19,6 +19,7 @@ install:
 script:
     - flake8 --statistics pytest_pipeline tests
     - coverage run --source=pytest_pipeline `which py.test` tests pytest_pipeline
+    - isort --check-only --recursive pytest_pipeline tests setup.py
 
 after_success:
     - coverage report -m

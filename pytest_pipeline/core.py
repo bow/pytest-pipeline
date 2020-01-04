@@ -13,15 +13,15 @@ import os
 import shlex
 import shutil
 import subprocess
-import threading
 import tempfile
+import threading
 import time
 from uuid import uuid4
 
 import pytest
 
-# TODO: allow multiple runs to be executed in test pipelines
 
+# TODO: allow multiple runs to be executed in test pipelines
 class PipelineRun:
 
     def __init__(self, cmd, stdout=None, stderr=None,
