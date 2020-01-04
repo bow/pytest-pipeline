@@ -20,6 +20,7 @@ script:
   - flake8 --statistics pytest_pipeline tests
   - coverage run --source=pytest_pipeline $(which py.test) tests pytest_pipeline
   - isort --check-only --recursive pytest_pipeline tests setup.py
+  - radon cc --total-average --show-closures --show-complexity --min C pytest_pipeline
 
 after_success:
   - coverage report -m
