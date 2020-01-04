@@ -1,13 +1,16 @@
 # -*- coding: utf-8 -*-
-# (c) 2014-2018 Wibowo Arindrarto <bow@bow.web.id>
+"""
+    plugin tests
+    ~~~~~~~~~~~~
 
-# TODO: unit tests ~ these are closer to integration/functional tests
+"""
+# (c) 2014-2020 Wibowo Arindrarto <bow@bow.web.id>
+
 import glob
 import os
 import sys
 
 import pytest
-
 
 pytest_plugins = "pytester"
 
