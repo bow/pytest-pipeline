@@ -17,7 +17,7 @@ install:
     - pip install codecov==2.0.15
 
 script:
-    - flake8 --statistics tests pytest_pipeline
+    - flake8 --statistics pytest_pipeline tests
     - coverage run --source=pytest_pipeline `which py.test` tests pytest_pipeline
 
 after_success:
