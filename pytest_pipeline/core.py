@@ -19,12 +19,10 @@ import time
 from uuid import uuid4
 
 import pytest
-from past.builtins import basestring
-
 
 # TODO: allow multiple runs to be executed in test pipelines
 
-class PipelineRun(object):
+class PipelineRun:
 
     def __init__(self, cmd, stdout=None, stderr=None,
                  poll_time=0.01, timeout=None):
@@ -43,14 +41,14 @@ class PipelineRun(object):
 
     def __launch_main_process(self):
 
-        if isinstance(self.stdout, basestring):
+        if isinstance(self.stdout, str):
             self.stdout = open(self.stdout, "w")
         elif self.stdout is None:
             self.stdout = open(os.devnull, "w")
         elif self.stdout is True:
             self.stdout = subprocess.PIPE
 
-        if isinstance(self.stderr, basestring):
+        if isinstance(self.stderr, str):
             self.stderr = open(self.stderr, "w")
         elif self.stderr is None:
             self.stderr = open(os.devnull, "w")

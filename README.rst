@@ -19,7 +19,7 @@ input and/or output files + directories. The plugin is meant for end-to-end
 testing where you test for conditions before the pipeline run and after the
 pipeline runs (output files, checksums, etc.).
 
-pytest-pipeline is tested against Python versions 2.7, 3.4, 3.5, and 3.6.
+pytest-pipeline is tested against Python versions 3.6, 3.7. and 3.8.
 
 
 Installation

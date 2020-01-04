@@ -3,9 +3,7 @@
 
 from setuptools import find_packages, setup
 
-from pytest_pipeline import __author__, __contact__, \
-        __homepage__, __version__
-
+from pytest_pipeline import __author__, __contact__, __homepage__, __version__
 
 with open("README.rst") as src:
     readme = src.read()
@@ -45,11 +43,9 @@ setup(
         "Intended Audience :: Developers",
         "License :: OSI Approved :: BSD License",
         "Operating System :: POSIX",
-        "Programming Language :: Python :: 2.7",
-        "Programming Language :: Python :: 3.4",
-        "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
         "Topic :: Utilities",
         "Topic :: Software Development :: Testing",
         "Topic :: Software Development :: Libraries",
