@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+# (c) 2014-2020 Wibowo Arindrarto <bow@bow.web.id>
 
 from setuptools import find_packages, setup
 

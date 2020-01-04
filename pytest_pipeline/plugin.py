@@ -6,7 +6,7 @@
     pytest plugin entry point.
 
 """
-# (c) 2014-2018 Wibowo Arindrarto <bow@bow.web.id>
+# (c) 2014-2020 Wibowo Arindrarto <bow@bow.web.id>
 
 
 def pytest_addoption(parser):

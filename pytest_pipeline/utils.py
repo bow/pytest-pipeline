@@ -6,7 +6,7 @@
     General utilities.
 
 """
-# (c) 2014-2018 Wibowo Arindrarto <bow@bow.web.id>
+# (c) 2014-2020 Wibowo Arindrarto <bow@bow.web.id>
 
 import gzip
 import hashlib
