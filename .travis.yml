@@ -14,7 +14,7 @@ before_install:
 
 install:
     - pip install -e .
-    - pip install codecov==2.0.5
+    - pip install codecov==2.0.15
 
 script:
     - flake8 --statistics tests pytest_pipeline
