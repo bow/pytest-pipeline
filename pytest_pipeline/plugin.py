@@ -11,6 +11,10 @@
 
 def pytest_addoption(parser):
     group = parser.getgroup("general")
-    group.addoption("--base-pipeline-dir", dest="base_pipeline_dir",
-                    default=None, metavar="dir",
-                    help="Base directory to put all pipeline test directories")
+    group.addoption(
+        "--base-pipeline-dir",
+        dest="base_pipeline_dir",
+        default=None,
+        metavar="dir",
+        help="Base directory to put all pipeline test directories",
+    )

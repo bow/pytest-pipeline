@@ -18,9 +18,11 @@ def before_run(__firstarg=None, order=sys.maxsize, **kwargz):
     # first case: when decorator has no args
     # TODO: can we have less duplication here?
     if callable(__firstarg) and len(kwargz) == 0:
+
         func = __firstarg
         assert not hasattr(func, "_before_run_order"), \
             "Can not set existing '_before_run_order' attribute"
+
         func._before_run_order = order
 
         @wraps(func)
@@ -31,8 +33,9 @@ def before_run(__firstarg=None, order=sys.maxsize, **kwargz):
     # other cases: when decorator has args
     elif __firstarg is None:
         def onion(func):       # layers, right?
-            assert not hasattr(func, "_before_run_order"), \
+            assert not hasattr(func, "_before_run_order"), (
                 "Can not set existing '_before_run_order' attribute"
+            )
             func._before_run_order = order
 
             @wraps(func)
@@ -40,7 +43,8 @@ def before_run(__firstarg=None, order=sys.maxsize, **kwargz):
                 return func(self, *args, **kwargs)
 
             return wrapped
+
         return onion
+
     # fall through other cases
-    else:
-        raise ValueError("Decorator 'before_run' set incorrectly")
+    raise ValueError("Decorator 'before_run' set incorrectly")

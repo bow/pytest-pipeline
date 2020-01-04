@@ -25,6 +25,7 @@ def file_md5sum(fname, unzip=False, blocksize=65536, encoding="utf-8"):
         while len(buf) > 0:
             hasher.update(buf)
             buf = src.read(blocksize)
+
     return hasher.hexdigest()
 
 
@@ -35,9 +36,11 @@ def isexecfile(fname):
 def which(program):
     # can not do anything meaningful without PATH
     if "PATH" not in os.environ:
-        return
+        return None
+
     for possible in os.environ["PATH"].split(":"):
         qualname = os.path.join(possible, program)
         if isexecfile(qualname):
             return qualname
-    return
+
+    return None

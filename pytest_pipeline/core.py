@@ -24,8 +24,14 @@ import pytest
 # TODO: allow multiple runs to be executed in test pipelines
 class PipelineRun:
 
-    def __init__(self, cmd, stdout=None, stderr=None,
-                 poll_time=0.01, timeout=None):
+    def __init__(
+        self,
+        cmd,
+        stdout=None,
+        stderr=None,
+        poll_time=0.01,
+        timeout=None,
+    ):
         self.cmd = cmd
         self.stdout = stdout
         self.stderr = stderr
@@ -36,8 +42,7 @@ class PipelineRun:
         self.run_dir = None
 
     def __repr__(self):
-        return "{0}(run_id={1}, ...)".format(self.__class__.__name__,
-                                             self.run_id)
+        return f"{self.__class__.__name__}(run_id={self.run_id}, ...)"
 
     def __launch_main_process(self):
 
@@ -57,9 +62,13 @@ class PipelineRun:
 
         def target():
             toks = shlex.split(
-                self.cmd.format(run_dir="'" + self.run_dir + "'"))
-            self._process = subprocess.Popen(toks, stdout=self.stdout,
-                                             stderr=self.stderr)
+                self.cmd.format(run_dir="'" + self.run_dir + "'")
+            )
+            self._process = subprocess.Popen(
+                toks,
+                stdout=self.stdout,
+                stderr=self.stderr,
+            )
             while self._process.poll() is None:
                 time.sleep(self.poll_time)
 
@@ -69,13 +78,14 @@ class PipelineRun:
         thread.join(self.timeout)
         if thread.is_alive():
             self._process.terminate()
-            pytest.fail("Process is taking longer than {0} "
-                        "seconds".format(self.timeout))
+            pytest.fail(f"Process is taking longer than {self.timeout} seconds")
 
         if self.stdout == subprocess.PIPE:
             self.stdout = self._process.stdout.read()
         if self.stderr == subprocess.PIPE:
             self.stderr = self._process.stderr.read()
+
+        return None
 
     @classmethod
     def _get_before_run_funcs(cls):
@@ -86,6 +96,7 @@ class PipelineRun:
 
         for _, func in inspect.getmembers(cls, predicate=pred):
             funcs.append(func)
+
         return sorted(funcs, key=lambda f: getattr(f, "_before_run_order"))
 
     @classmethod
@@ -103,8 +114,10 @@ class PipelineRun:
             # create base pipeline dir if it does not exist
             root_test_dir = request.config.option.base_pipeline_dir
             if root_test_dir is None:
-                root_test_dir = os.path.join(tempfile.tempdir,
-                                             "pipeline_tests")
+                root_test_dir = os.path.join(
+                    tempfile.tempdir,
+                    "pipeline_tests",
+                )
                 if not os.path.exists(root_test_dir):
                     os.makedirs(root_test_dir)
             test_dir = os.path.join(root_test_dir, run.run_id)
@@ -122,6 +135,7 @@ class PipelineRun:
             os.chdir(test_dir)
             for func in cls._get_before_run_funcs():
                 func(run)
+
             run.__launch_main_process()
 
             if scope != "class":
@@ -134,10 +148,13 @@ class PipelineRun:
     @property
     def run_id(self):
         if not hasattr(self, "_run_id"):
-            self._run_id = self.__class__.__name__ + "_" + str(uuid4())
+            self._run_id = f"{self.__class__.__name__}_{uuid4()}"
+
         return self._run_id
 
     @property
     def exit_code(self):
         if self._process is not None:
             return self._process.returncode
+
+        return None
