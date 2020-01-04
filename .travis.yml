@@ -5,22 +5,22 @@ language: python
 sudo: false
 
 python:
-    - "3.6"
-    - "3.7"
-    - "3.8"
+  - "3.6"
+  - "3.7"
+  - "3.8"
 
 before_install:
-    - pip install -r requirements-dev.txt
+  - pip install -r requirements-dev.txt
 
 install:
-    - pip install -e .
-    - pip install codecov==2.0.15
+  - pip install -e .
+  - pip install codecov==2.0.15
 
 script:
-    - flake8 --statistics pytest_pipeline tests
-    - coverage run --source=pytest_pipeline `which py.test` tests pytest_pipeline
-    - isort --check-only --recursive pytest_pipeline tests setup.py
+  - flake8 --statistics pytest_pipeline tests
+  - coverage run --source=pytest_pipeline $(which py.test) tests pytest_pipeline
+  - isort --check-only --recursive pytest_pipeline tests setup.py
 
 after_success:
-    - coverage report -m
-    - codecov
+  - coverage report -m
+  - codecov
