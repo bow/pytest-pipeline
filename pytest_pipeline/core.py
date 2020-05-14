@@ -115,7 +115,7 @@ class PipelineRun:
             root_test_dir = request.config.option.base_pipeline_dir
             if root_test_dir is None:
                 root_test_dir = os.path.join(
-                    tempfile.tempdir,
+                    tempfile.gettempdir(),
                     "pipeline_tests",
                 )
                 if not os.path.exists(root_test_dir):
